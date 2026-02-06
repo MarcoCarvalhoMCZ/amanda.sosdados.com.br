@@ -1,0 +1,3910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Done - Rotinas Saudáveis</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            
+            --morning: #f59e0b;
+            --afternoon: #f97316;
+            --evening: #6366f1;
+            --night: #8b5cf6;
+            
+            --gradient-start: #6366f1;
+            --gradient-end: #8b5cf6;
+        }
+
+        /* Themes */
+        [data-theme="ocean"] {
+            --primary: #0ea5e9;
+            --primary-light: #38bdf8;
+            --primary-dark: #0284c7;
+            --secondary: #06b6d4;
+            --gradient-start: #0ea5e9;
+            --gradient-end: #06b6d4;
+            --morning: #f59e0b;
+            --afternoon: #f97316;
+            --evening: #0ea5e9;
+            --night: #6366f1;
+        }
+
+        [data-theme="sunset"] {
+            --primary: #f97316;
+            --primary-light: #fb923c;
+            --primary-dark: #ea580c;
+            --secondary: #ec4899;
+            --gradient-start: #f97316;
+            --gradient-end: #ec4899;
+            --morning: #f59e0b;
+            --afternoon: #f97316;
+            --evening: #ec4899;
+            --night: #8b5cf6;
+        }
+
+        [data-theme="forest"] {
+            --primary: #059669;
+            --primary-light: #10b981;
+            --primary-dark: #047857;
+            --secondary: #84cc16;
+            --gradient-start: #059669;
+            --gradient-end: #84cc16;
+            --morning: #eab308;
+            --afternoon: #f59e0b;
+            --evening: #059669;
+            --night: #065f46;
+        }
+
+        [data-theme="midnight"] {
+            --primary: #475569;
+            --primary-light: #64748b;
+            --primary-dark: #334155;
+            --secondary: #f59e0b;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --gradient-start: #475569;
+            --gradient-end: #f59e0b;
+            --morning: #f59e0b;
+            --afternoon: #f97316;
+            --evening: #818cf8;
+            --night: #6366f1;
+        }
+
+        [data-theme="berry"] {
+            --primary: #e11d48;
+            --primary-light: #fb7185;
+            --primary-dark: #be123c;
+            --secondary: #8b5cf6;
+            --gradient-start: #e11d48;
+            --gradient-end: #8b5cf6;
+            --morning: #f59e0b;
+            --afternoon: #f97316;
+            --evening: #e11d48;
+            --night: #86198f;
+        }
+
+        [data-theme="monochrome"] {
+            --primary: #18181b;
+            --primary-light: #3f3f46;
+            --primary-dark: #09090b;
+            --secondary: #71717a;
+            --gradient-start: #18181b;
+            --gradient-end: #3f3f46;
+            --morning: #52525b;
+            --afternoon: #3f3f46;
+            --evening: #18181b;
+            --night: #09090b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 90px;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Auth Screen */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .auth-container {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 32px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: slideUp 0.5s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 24px;
+            font-size: 48px;
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: var(--surface);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .radio-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 12px;
+            text-align: center;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .radio-option input:checked + .radio-label {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .imc-preview {
+            grid-column: 1 / -1;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 8px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+
+        .imc-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .imc-status {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .imc-normal { background: #d1fae5; color: #065f46; }
+        .imc-overweight { background: #fed7aa; color: #9a3412; }
+        .imc-obese1 { background: #fecaca; color: #991b1b; }
+        .imc-obese2 { background: #fca5a5; color: #7f1d1d; }
+        .imc-obese3 { background: #ef4444; color: white; }
+        .imc-underweight { background: #bfdbfe; color: #1e40af; }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-avatar {
+            width: 64px;
+            height: 64px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .profile-info h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-stat {
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .profile-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .profile-stat-label {
+            font-size: 11px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .imc-badge {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        /* Theme Selector */
+        .theme-section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header-with-action {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .add-small-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .theme-option {
+            position: relative;
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .theme-option:hover {
+            transform: translateY(-2px);
+        }
+
+        .theme-option.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .theme-preview {
+            width: 100%;
+            height: 60px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .theme-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .theme-default { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+        .theme-ocean { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+        .theme-sunset { background: linear-gradient(135deg, #f97316, #ec4899); }
+        .theme-forest { background: linear-gradient(135deg, #059669, #84cc16); }
+        .theme-midnight { background: linear-gradient(135deg, #475569, #f59e0b); }
+        .theme-berry { background: linear-gradient(135deg, #e11d48, #8b5cf6); }
+        .theme-monochrome { background: linear-gradient(135deg, #18181b, #3f3f46); }
+
+        /* Rewards Management */
+        .rewards-manage-list {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .reward-manage-item {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .reward-manage-item:hover {
+            background: var(--bg);
+        }
+
+        .reward-manage-item:last-child {
+            border-bottom: none;
+        }
+
+        .reward-manage-icon {
+            font-size: 32px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border-radius: 12px;
+        }
+
+        .reward-manage-info {
+            flex: 1;
+        }
+
+        .reward-manage-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .reward-manage-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .reward-manage-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .icon-btn.delete:hover {
+            background: var(--danger);
+        }
+
+        /* Sorteio Button */
+        .sorteio-btn {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .sorteio-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .sorteio-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Sorteio Result Modal */
+        .sorteio-result {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .sorteio-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .sorteio-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+        }
+
+        .sorteio-desc {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 24px;
+        }
+
+        /* Habit Card Actions */
+        .habit-actions {
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .habit-card:hover .habit-actions {
+            opacity: 1;
+        }
+
+        .habit-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .habit-action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .habit-action-btn.edit:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .habit-action-btn.delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+
+        @media (max-width: 640px) {
+            .habit-actions {
+                opacity: 1;
+            }
+        }
+
+        /* Rest of existing styles */
+        .header {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            padding: 24px 20px 32px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-30px, -30px) rotate(180deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .greeting {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .progress-overview {
+            background: var(--surface);
+            margin: -24px 20px 20px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-weight: 500;
+        }
+
+        .circular-progress {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 8px;
+            position: relative;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 6;
+        }
+
+        .circular-progress .bg {
+            stroke: var(--border);
+        }
+
+        .circular-progress .progress {
+            stroke: var(--primary);
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.6s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .nav-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+            display: flex;
+            justify-content: space-around;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+            border: none;
+            background: none;
+            font-size: 12px;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-btn-main {
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-top: -32px;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            border: 4px solid var(--bg);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .add-btn-main:active {
+            transform: scale(0.95);
+        }
+
+        .screen {
+            display: none;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .time-section {
+            margin-bottom: 24px;
+        }
+
+        .time-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .time-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .morning { color: var(--morning); }
+        .morning .time-dot { background: var(--morning); }
+        
+        .afternoon { color: var(--afternoon); }
+        .afternoon .time-dot { background: var(--afternoon); }
+        
+        .evening { color: var(--evening); }
+        .evening .time-dot { background: var(--evening); }
+        
+        .night { color: var(--night); }
+        .night .time-dot { background: var(--night); }
+
+        .habit-card {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .habit-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .habit-card.completed {
+            border-color: var(--success);
+            background: linear-gradient(to right, rgba(16, 185, 129, 0.05), var(--surface));
+        }
+
+        .habit-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: var(--bg);
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+
+        .habit-card:active .habit-icon {
+            transform: scale(0.9);
+        }
+
+        .habit-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .habit-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .habit-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .habit-check {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .habit-card.completed .habit-check {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+            animation: checkPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .day-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .week-calendar {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .week-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .week-day {
+            text-align: center;
+            padding: 12px 4px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .week-day:hover {
+            background: var(--bg);
+        }
+
+        .week-day.active {
+            background: var(--primary);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .week-day-number {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .week-day-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .week-status {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--success);
+            margin: 4px auto 0;
+        }
+
+        .med-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid #93c5fd;
+        }
+
+        [data-theme="midnight"] .med-section {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-color: #334155;
+        }
+
+        .med-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            color: #1e40af;
+        }
+
+        [data-theme="midnight"] .med-header {
+            color: #93c5fd;
+        }
+
+        .med-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .med-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .med-item {
+            background: rgba(255,255,255,0.9);
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        [data-theme="midnight"] .med-item {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .med-time {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 14px;
+            min-width: 45px;
+        }
+
+        .med-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .med-check {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #93c5fd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .med-item.taken .med-check {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .reward-card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .reward-card.locked {
+            opacity: 0.6;
+            filter: grayscale(1);
+        }
+
+        .reward-card.unlocked {
+            border: 2px solid var(--success);
+            animation: unlockPulse 2s infinite;
+        }
+
+        .reward-card.won {
+            border: 2px solid #f59e0b;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), var(--surface));
+        }
+
+        @keyframes unlockPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+        }
+
+        .reward-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .reward-name {
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .reward-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .reward-progress {
+            background: var(--bg);
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+
+        .reward-progress-bar {
+            height: 100%;
+            background: var(--success);
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+
+        /* === SISTEMA PROGRESSIVO DE TIERS === */
+        .tier-header {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .tier-month-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .tier-1 { background: linear-gradient(135deg, #d1d5db, #9ca3af); color: white; }
+        .tier-2 { background: linear-gradient(135deg, #86efac, #22c55e); color: white; }
+        .tier-3 { background: linear-gradient(135deg, #93c5fd, #3b82f6); color: white; }
+        .tier-4 { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); color: white; }
+        .tier-5 { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: white; }
+        .tier-6 { background: linear-gradient(135deg, #f97316, #ef4444); color: white; }
+
+        .tier-progress-bar {
+            background: var(--bg);
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 16px 0 8px;
+        }
+
+        .tier-progress-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.8s ease;
+        }
+
+        .tier-thresholds {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        .tier-threshold {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .tier-threshold.reached {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .tier-staircase {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+            margin: 16px 0;
+            height: 80px;
+        }
+
+        .tier-step {
+            flex: 1;
+            max-width: 48px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 4px 2px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .tier-step.active {
+            opacity: 1;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tier-step.completed {
+            opacity: 0.7;
+        }
+
+        .tier-step-icon {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .history-section {
+            margin-top: 24px;
+        }
+
+        .history-item {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .history-month {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .history-month-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .history-month-num {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .history-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-reward-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .history-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .history-badge {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 32px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-history-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .tier-reward-section {
+            margin-bottom: 20px;
+        }
+
+        .tier-reward-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            padding-left: 4px;
+        }
+
+        .tier-reward-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .settings-list {
+            background: var(--surface);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .settings-item {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .settings-item:last-child {
+            border-bottom: none;
+        }
+
+        .settings-item:hover {
+            background: var(--bg);
+        }
+
+        .settings-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .settings-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--bg);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .settings-label {
+            font-weight: 600;
+        }
+
+        .settings-value {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            transform: translateY(100%);
+            transition: transform 0.3s ease-out;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: var(--bg);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .days-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .day-chip {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .time-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .time-option {
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .time-option.active {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+
+        .water-card {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .water-card::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: var(--water-level, 0%);
+            background: rgba(255,255,255,0.2);
+            transition: height 0.6s ease;
+        }
+
+        .water-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .water-title {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .water-amount {
+            font-size: 32px;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+
+        .water-controls {
+            display: flex;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .water-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+            transition: all 0.3s;
+        }
+
+        .water-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f0f;
+            position: absolute;
+            animation: confetti-fall 3s linear forwards;
+            z-index: 9999;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--surface);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border-left: 4px solid var(--success);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+            max-width: 300px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-title {
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .toast-message {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .slider-container {
+            margin-top: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        @media (max-width: 380px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .progress-overview {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .rewards-grid, .theme-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .profile-stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+        }
+
+        .hide {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">✅</div>
+            <div class="auth-title">Done</div>
+            <div class="auth-subtitle">Rotinas Saudáveis<br>Crie sua conta para começar</div>
+            
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Primeiro Nome</label>
+                        <input type="text" class="form-input" id="firstName" required placeholder="João">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Último Nome</label>
+                        <input type="text" class="form-input" id="lastName" required placeholder="Silva">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Idade</label>
+                        <input type="number" class="form-input" id="age" required min="13" max="120" placeholder="25">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Sexo</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" name="gender" id="male" value="M" checked>
+                                <label for="male" class="radio-label">Masculino</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" name="gender" id="female" value="F">
+                                <label for="female" class="radio-label">Feminino</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Altura (cm)</label>
+                        <input type="number" class="form-input" id="height" required min="50" max="300" placeholder="175" oninput="calculateIMCPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Peso (kg)</label>
+                        <input type="number" class="form-input" id="weight" required min="20" max="500" step="0.1" placeholder="70.5" oninput="calculateIMCPreview()">
+                    </div>
+                    
+                    <div class="imc-preview" id="imcPreview" style="display: none;">
+                        <div class="imc-value" id="imcValue">--</div>
+                        <div class="imc-status" id="imcStatus">--</div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn-primary">Começar Minha Jornada</button>
+                
+                <!-- Botão para limpar dados e recomeçar (emergência) -->
+                <button type="button" class="btn-secondary" onclick="forceReset()" style="margin-top: 10px; font-size: 12px; opacity: 0.7;">
+                    Problemas para entrar? Clique aqui
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hide">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-content">
+                <div class="greeting" id="greeting">Bom dia</div>
+                <div class="header-title" id="userName">Olá, Visitante</div>
+                <div class="level-badge">
+                    <span>🏆</span>
+                    <span id="levelText">Nível 1 • 0 XP</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div class="progress-overview">
+            <div class="stat-item">
+                <div class="circular-progress">
+                    <svg viewBox="0 0 36 36">
+                        <path class="bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="progress" id="dayProgress" stroke-dasharray="100, 100" stroke-dashoffset="100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="progress-text" id="dayPercent">0%</div>
+                </div>
+                <div class="stat-label">Hoje</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="weekStreak">0</div>
+                <div class="stat-label">Dias Seguidos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="monthProgress">0%</div>
+                <div class="stat-label">Mês</div>
+            </div>
+        </div>
+
+        <!-- Screens -->
+        <div class="screen active" id="dailyScreen">
+            <div class="water-card" id="waterCard" style="--water-level: 0%">
+                <div class="water-header">
+                    <div class="water-title">💧 Hidratação</div>
+                    <div style="text-align: right;">
+                        <div class="water-amount" id="waterAmount">0/3000ml</div>
+                        <div style="font-size: 12px; opacity: 0.9;">Meta diária</div>
+                    </div>
+                </div>
+                <div class="water-controls">
+                    <button class="water-btn" onclick="addWater(250)">+250ml</button>
+                    <button class="water-btn" onclick="addWater(500)">+500ml</button>
+                    <button class="water-btn" onclick="resetWater()">↺</button>
+                </div>
+            </div>
+
+            <div class="med-section" id="medSection" style="display: none;">
+                <div class="med-header">
+                    <span style="font-size: 24px;">💊</span>
+                    <div class="med-title">Medicamentos & Suplementos</div>
+                </div>
+                <div class="med-list" id="medList"></div>
+            </div>
+
+            <div id="habitsByTime"></div>
+        </div>
+
+        <div class="screen" id="weeklyScreen">
+            <div class="week-calendar">
+                <div style="font-weight: 700; margin-bottom: 8px;">Semana Atual</div>
+                <div class="week-days" id="weekDays"></div>
+            </div>
+            <div id="weekHabitsList"></div>
+        </div>
+
+        <div class="screen" id="rewardsScreen">
+            <!-- Tier Header com Escada de Progresso -->
+            <div class="tier-header" id="tierHeader"></div>
+
+            <!-- Botão de Sorteio -->
+            <button class="sorteio-btn" onclick="sortearRecompensa()" id="sorteioBtn">
+                <span>🎲</span>
+                <span>Sortear Recompensa do Mês</span>
+            </button>
+
+            <!-- Recompensas do Mês Atual por Faixa -->
+            <div id="tierRewardsContainer"></div>
+
+            <!-- Histórico de Recompensas Ganhas -->
+            <div class="history-section">
+                <div class="section-title">📜 Histórico de Recompensas</div>
+                <div id="rewardsHistory"></div>
+            </div>
+        </div>
+
+        <div class="screen" id="settingsScreen">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">👤</div>
+                    <div class="profile-info">
+                        <h3 id="profileName">Nome Sobrenome</h3>
+                        <p id="profileDetails">25 anos • Masculino</p>
+                        <div class="imc-badge" id="imcBadge">IMC: --</div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="statHeight">--</div>
+                        <div class="profile-stat-label">Altura (cm)</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="statWeight">--</div>
+                        <div class="profile-stat-label">Peso (kg)</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-value" id="statAge">--</div>
+                        <div class="profile-stat-label">Idade</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="theme-section">
+                <div class="section-title">🎨 Tema do Aplicativo</div>
+                <div class="theme-grid">
+                    <div class="theme-option active" onclick="setTheme('default')">
+                        <div class="theme-preview theme-default"></div>
+                        <div class="theme-name">Padrão</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('ocean')">
+                        <div class="theme-preview theme-ocean"></div>
+                        <div class="theme-name">Oceano</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('sunset')">
+                        <div class="theme-preview theme-sunset"></div>
+                        <div class="theme-name">Pôr do Sol</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('forest')">
+                        <div class="theme-preview theme-forest"></div>
+                        <div class="theme-name">Floresta</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('midnight')">
+                        <div class="theme-preview theme-midnight"></div>
+                        <div class="theme-name">Meia-noite</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('berry')">
+                        <div class="theme-preview theme-berry"></div>
+                        <div class="theme-name">Berry</div>
+                    </div>
+                    <div class="theme-option" onclick="setTheme('monochrome')">
+                        <div class="theme-preview theme-monochrome"></div>
+                        <div class="theme-name">Monocromo</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header-with-action">
+                <div class="section-title">🎁 Recompensas por Mês</div>
+                <button class="add-small-btn" onclick="openRewardModal()">+</button>
+            </div>
+            <div style="margin-bottom: 12px;">
+                <select class="form-select" id="rewardMonthFilter" onchange="renderRewardsManagement()" style="padding: 10px 14px; font-size: 14px;">
+                    <option value="1">Mês 1 — 🥉 Bronze</option>
+                    <option value="2">Mês 2 — 🥈 Prata</option>
+                    <option value="3">Mês 3 — 🥇 Ouro</option>
+                    <option value="4">Mês 4 — 💎 Diamante</option>
+                    <option value="5">Mês 5 — 👑 Platina</option>
+                    <option value="6">Mês 6 — 🏆 Lendário</option>
+                </select>
+            </div>
+            <div class="rewards-manage-list" id="rewardsManageList"></div>
+
+            <div class="settings-list">
+                <div class="settings-item" onclick="editProfile()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">✏️</div>
+                        <div>
+                            <div class="settings-label">Editar Perfil</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="updateWeight()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">⚖️</div>
+                        <div>
+                            <div class="settings-label">Atualizar Peso</div>
+                            <div class="settings-value" id="currentWeightDisplay">-- kg</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="exportData()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">💾</div>
+                        <div>
+                            <div class="settings-label">Exportar Backup (JSON)</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="importData()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">📂</div>
+                        <div>
+                            <div class="settings-label">Importar Backup (JSON)</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="exportToGoogleSheets()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">📊</div>
+                        <div>
+                            <div class="settings-label">Sincronizar com Google Sheets</div>
+                            <div class="settings-value" id="sheetsStatus">Não configurado</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="openSheetsConfigModal()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">⚙️</div>
+                        <div>
+                            <div class="settings-label">Configurar Google Sheets</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="resetData()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">🔄</div>
+                        <div>
+                            <div class="settings-label">Resetar Tudo</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+                <div class="settings-item" onclick="logout()" style="color: var(--danger);">
+                    <div class="settings-item-left">
+                        <div class="settings-icon" style="background: rgba(239, 68, 68, 0.1);">🚪</div>
+                        <div>
+                            <div class="settings-label">Sair da Conta</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="nav-container">
+            <button class="nav-item active" onclick="setScreen('daily')">
+                <i>☀️</i>
+                <span>Diário</span>
+            </button>
+            <button class="nav-item" onclick="setScreen('weekly')">
+                <i>📅</i>
+                <span>Semana</span>
+            </button>
+            <button class="add-btn-main" onclick="openModal()">+</button>
+            <button class="nav-item" onclick="setScreen('rewards')">
+                <i>🎁</i>
+                <span>Recompensas</span>
+            </button>
+            <button class="nav-item" onclick="setScreen('settings')">
+                <i>⚙️</i>
+                <span>Perfil</span>
+            </button>
+        </nav>
+
+        <!-- Habit Modal (Create/Edit) -->
+        <div class="modal-overlay" id="habitModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="habitModalTitle">Novo Hábito</span>
+                    <button class="close-btn" onclick="closeModal()">✕</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-input" id="habitName" placeholder="Ex: Meditar">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ícone</label>
+                    <input type="text" class="form-input" id="habitIcon" placeholder="Ex: 🧘" maxlength="2" value="⭐">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-select" id="habitCategory" onchange="toggleCategoryFields()">
+                        <option value="habit">Hábito Geral</option>
+                        <option value="medication">Medicamento</option>
+                        <option value="supplement">Suplemento</option>
+                        <option value="exercise">Exercício</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Período do Dia</label>
+                    <div class="time-selector">
+                        <div class="time-option active" data-time="morning" onclick="selectTime(this)">
+                            🌅 Manhã
+                        </div>
+                        <div class="time-option" data-time="afternoon" onclick="selectTime(this)">
+                            ☀️ Tarde
+                        </div>
+                        <div class="time-option" data-time="evening" onclick="selectTime(this)">
+                            🌆 Noite
+                        </div>
+                        <div class="time-option" data-time="night" onclick="selectTime(this)">
+                            🌙 Madrugada
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dias da Semana</label>
+                    <div class="days-selector">
+                        <div class="day-chip active" data-day="0" onclick="toggleDay(this)">D</div>
+                        <div class="day-chip active" data-day="1" onclick="toggleDay(this)">S</div>
+                        <div class="day-chip active" data-day="2" onclick="toggleDay(this)">T</div>
+                        <div class="day-chip active" data-day="3" onclick="toggleDay(this)">Q</div>
+                        <div class="day-chip active" data-day="4" onclick="toggleDay(this)">Q</div>
+                        <div class="day-chip active" data-day="5" onclick="toggleDay(this)">S</div>
+                        <div class="day-chip active" data-day="6" onclick="toggleDay(this)">S</div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="dosageGroup" style="display: none;">
+                    <label class="form-label">Dosagem/Detalhes</label>
+                    <input type="text" class="form-input" id="habitDosage" placeholder="Ex: 20mg após café">
+                </div>
+
+                <button class="btn-primary" onclick="saveHabit()" id="saveHabitBtn">Criar Hábito</button>
+                <button class="btn-secondary btn-danger" onclick="deleteHabit()" id="deleteHabitBtn" style="display: none;">Excluir Hábito</button>
+            </div>
+        </div>
+
+        <!-- Reward Modal -->
+        <div class="modal-overlay" id="rewardModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span id="rewardModalTitle">Nova Recompensa</span>
+                    <button class="close-btn" onclick="closeRewardModal()">✕</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nome da Recompensa</label>
+                    <input type="text" class="form-input" id="rewardName" placeholder="Ex: Massagem Relaxante">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ícone</label>
+                    <input type="text" class="form-input" id="rewardIcon" placeholder="Ex: 💆" maxlength="2" value="🎁">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" class="form-input" id="rewardDesc" placeholder="Ex: Uma hora de massagem no spa">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mês (Tier de Progressão)</label>
+                    <select class="form-select" id="rewardMonth">
+                        <option value="1">Mês 1 — 🥉 Bronze</option>
+                        <option value="2">Mês 2 — 🥈 Prata</option>
+                        <option value="3">Mês 3 — 🥇 Ouro</option>
+                        <option value="4">Mês 4 — 💎 Diamante</option>
+                        <option value="5">Mês 5 — 👑 Platina</option>
+                        <option value="6">Mês 6 — 🏆 Lendário</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Faixa de Conclusão</label>
+                    <select class="form-select" id="rewardTier">
+                        <option value="bronze">🥉 50-69% — Recompensa Básica</option>
+                        <option value="silver">🥈 70-89% — Recompensa Boa</option>
+                        <option value="gold">🥇 90-100% — Recompensa Premium</option>
+                    </select>
+                </div>
+
+                <button class="btn-primary" onclick="saveReward()" id="saveRewardBtn">Criar Recompensa</button>
+                <button class="btn-secondary btn-danger" onclick="deleteReward()" id="deleteRewardBtn" style="display: none;">Excluir Recompensa</button>
+            </div>
+        </div>
+
+        <!-- Sorteio Modal -->
+        <div class="modal-overlay" id="sorteioModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>🎉 Recompensa Sorteada!</span>
+                    <button class="close-btn" onclick="closeSorteioModal()">✕</button>
+                </div>
+                
+                <div class="sorteio-result">
+                    <div class="sorteio-icon" id="sorteioIcon">🎁</div>
+                    <div class="sorteio-name" id="sorteioName">Nome da Recompensa</div>
+                    <div class="sorteio-desc" id="sorteioDesc">Descrição da recompensa sorteada</div>
+                    <button class="btn-primary" onclick="closeSorteioModal()">Fechar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Update Modal -->
+        <div class="modal-overlay" id="weightModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>Atualizar Peso</span>
+                    <button class="close-btn" onclick="closeWeightModal()">✕</button>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Novo Peso (kg)</label>
+                    <input type="number" class="form-input" id="newWeight" step="0.1" placeholder="70.5">
+                </div>
+
+                <div class="imc-preview" id="weightImcPreview" style="display: none; margin-bottom: 20px;">
+                    <div class="imc-value" id="newImcValue">--</div>
+                    <div class="imc-status" id="newImcStatus">--</div>
+                </div>
+
+                <button class="btn-primary" onclick="saveNewWeight()">Atualizar Peso</button>
+                <button class="btn-secondary" onclick="closeWeightModal()">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Google Sheets Config Modal -->
+        <div class="modal-overlay" id="sheetsConfigModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span>⚙️ Configurar Google Sheets</span>
+                    <button class="close-btn" onclick="closeSheetsConfigModal()">✕</button>
+                </div>
+                
+                <div style="margin-bottom: 16px; padding: 16px; background: var(--bg); border-radius: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <strong style="color: var(--text);">Como configurar:</strong><br>
+                    1. Crie uma planilha no Google Sheets<br>
+                    2. Vá em <strong>Extensões → Apps Script</strong><br>
+                    3. Cole o código do script (veja instruções abaixo)<br>
+                    4. Clique em <strong>Implantar → Nova implantação</strong><br>
+                    5. Escolha <strong>App da Web</strong>, acesso: <strong>Qualquer pessoa</strong><br>
+                    6. Cole a URL gerada aqui embaixo
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">URL do Web App (Google Apps Script)</label>
+                    <input type="url" class="form-input" id="sheetsUrl" placeholder="https://script.google.com/macros/s/.../exec">
+                </div>
+
+                <button class="btn-primary" onclick="saveSheetsConfig()">Salvar Configuração</button>
+                <button class="btn-secondary" onclick="copySheetsScript()">📋 Copiar Código do Apps Script</button>
+                <button class="btn-secondary" onclick="closeSheetsConfigModal()">Cancelar</button>
+            </div>
+        </div>
+
+        <!-- Hidden file input for import -->
+        <input type="file" id="importFileInput" accept=".json" style="display: none;" onchange="handleImportFile(event)">
+
+        <!-- Toast Notification -->
+        <div class="toast" id="toast">
+            <div class="toast-title" id="toastTitle">Parabéns!</div>
+            <div class="toast-message" id="toastMessage">Você completou uma tarefa</div>
+        </div>
+    </div>
+
+    <script>
+        // Data Structure
+        const defaultData = {
+            user: null,
+            habits: [
+                { id: 1, name: 'Sertralina', icon: '💊', category: 'medication', timeOfDay: 'morning', days: [0,1,2,3,4,5,6], dosage: '50mg após café', streak: 15, color: '#3b82f6', completed: {} },
+                { id: 2, name: 'Meditação', icon: '🧘', category: 'habit', timeOfDay: 'morning', days: [0,1,2,3,4,5,6], streak: 8, color: '#f59e0b', completed: {} },
+                { id: 3, name: 'Treino', icon: '💪', category: 'exercise', timeOfDay: 'afternoon', days: [0,2,4], streak: 12, color: '#10b981', completed: {} },
+                { id: 4, name: 'Balé', icon: '🩰', category: 'exercise', timeOfDay: 'evening', days: [1,3], streak: 5, color: '#ec4899', completed: {} },
+                { id: 5, name: 'Creatina', icon: '⚡', category: 'supplement', timeOfDay: 'afternoon', days: [0,1,2,3,4,5,6], dosage: '5g', streak: 20, color: '#8b5cf6', completed: {} },
+                { id: 6, name: 'Água', icon: '💧', category: 'habit', timeOfDay: 'morning', days: [0,1,2,3,4,5,6], streak: 7, color: '#0ea5e9', completed: {}, type: 'water' },
+                { id: 7, name: 'Leitura', icon: '📚', category: 'habit', timeOfDay: 'night', days: [0,1,2,3,4,5,6], streak: 3, color: '#f97316', completed: {} }
+            ],
+            water: { current: 0, goal: 3000 },
+            // Sistema progressivo de recompensas por mês
+            rewards: [
+                // Mês 1 - Bronze (simples)
+                { id: 101, name: 'Café Especial', icon: '☕', description: 'Um café gourmet da sua cafeteria favorita', month: 1, tier: 'bronze' },
+                { id: 102, name: 'Playlist Nova', icon: '🎵', description: 'Monte uma playlist especial no streaming', month: 1, tier: 'bronze' },
+                { id: 103, name: 'Sobremesa', icon: '🍰', description: 'Compre aquela sobremesa que você adora', month: 1, tier: 'silver' },
+                { id: 104, name: 'Filme no Cinema', icon: '🎬', description: 'Assista ao filme que quiser no cinema', month: 1, tier: 'silver' },
+                { id: 105, name: 'Livro Novo', icon: '📖', description: 'Compre o livro que está na wishlist', month: 1, tier: 'gold' },
+                { id: 106, name: 'Jantar Fora', icon: '🍽️', description: 'Jantar num restaurante especial', month: 1, tier: 'gold' },
+                // Mês 2 - Prata
+                { id: 201, name: 'Delivery Especial', icon: '🛵', description: 'Peça aquele delivery que você ama', month: 2, tier: 'bronze' },
+                { id: 202, name: 'Máscara Facial', icon: '🧖', description: 'Compre uma máscara/produto de skincare novo', month: 2, tier: 'bronze' },
+                { id: 203, name: 'Acessório Novo', icon: '💍', description: 'Um acessório pequeno que você queria', month: 2, tier: 'silver' },
+                { id: 204, name: 'Massagem Express', icon: '💆', description: '30 min de massagem relaxante', month: 2, tier: 'silver' },
+                { id: 205, name: 'Day Off Total', icon: '🏖️', description: 'Um dia inteiro sem obrigações extras', month: 2, tier: 'gold' },
+                { id: 206, name: 'Roupa Nova', icon: '👗', description: 'Compre aquela peça de roupa desejada', month: 2, tier: 'gold' },
+                // Mês 3 - Ouro
+                { id: 301, name: 'Brunch Especial', icon: '🥞', description: 'Um brunch caprichado no fim de semana', month: 3, tier: 'bronze' },
+                { id: 302, name: 'Produto de Beleza', icon: '💄', description: 'Aquele produto que está na wishlist', month: 3, tier: 'silver' },
+                { id: 303, name: 'Sessão de Spa', icon: '✨', description: '1h completa no spa', month: 3, tier: 'silver' },
+                { id: 304, name: 'Experiência Nova', icon: '🎯', description: 'Faça algo que nunca fez antes', month: 3, tier: 'gold' },
+                { id: 305, name: 'Compra até R$100', icon: '🛍️', description: 'Compre o que quiser até R$100', month: 3, tier: 'gold' },
+                // Mês 4 - Diamante
+                { id: 401, name: 'Assinatura Mensal', icon: '📦', description: 'Assine um serviço que queria (1 mês)', month: 4, tier: 'bronze' },
+                { id: 402, name: 'Workshop/Curso', icon: '🎓', description: 'Inscreva-se num curso ou workshop', month: 4, tier: 'silver' },
+                { id: 403, name: 'Compra até R$200', icon: '🛍️', description: 'Compre algo especial até R$200', month: 4, tier: 'gold' },
+                // Mês 5 - Platina
+                { id: 501, name: 'Dia de Beleza', icon: '💅', description: 'Dia completo de cuidados pessoais', month: 5, tier: 'bronze' },
+                { id: 502, name: 'Passeio Especial', icon: '🎡', description: 'Um passeio diferente no fim de semana', month: 5, tier: 'silver' },
+                { id: 503, name: 'Compra até R$300', icon: '👑', description: 'Aquele item premium que você merece', month: 5, tier: 'gold' },
+                // Mês 6 - Lendário
+                { id: 601, name: 'Experiência Premium', icon: '🌟', description: 'Restaurante top, show ou evento especial', month: 6, tier: 'bronze' },
+                { id: 602, name: 'Day Spa Completo', icon: '🏨', description: 'Dia inteiro de spa com tudo incluso', month: 6, tier: 'silver' },
+                { id: 603, name: 'Compra dos Sonhos', icon: '🏆', description: 'Aquele item que você sempre quis ter', month: 6, tier: 'gold' }
+            ],
+            // Histórico de recompensas ganhas
+            rewardHistory: [],
+            // Recompensa sorteada no mês atual (null se ainda não sorteou)
+            currentMonthReward: null,
+            xp: 0,
+            level: 1,
+            theme: 'default',
+            joinDate: new Date().toISOString()
+        };
+
+        let data = null;
+        let currentScreen = 'daily';
+        let selectedTime = 'morning';
+        let selectedDays = [0,1,2,3,4,5,6];
+        let selectedDate = new Date();
+        let editingRewardId = null;
+        let editingHabitId = null;
+
+        // Initialize com tratamento de erro melhorado
+        function init() {
+            try {
+                const stored = localStorage.getItem('dailyTrackData');
+                if (stored) {
+                    data = JSON.parse(stored);
+                    // Verifica se os dados estão corrompidos
+                    if (!data || typeof data !== 'object') {
+                        throw new Error('Dados inválidos');
+                    }
+                } else {
+                    data = JSON.parse(JSON.stringify(defaultData));
+                }
+            } catch (e) {
+                console.error('Erro ao carregar dados:', e);
+                data = JSON.parse(JSON.stringify(defaultData));
+                localStorage.removeItem('dailyTrackData');
+            }
+
+            // Migração: formato antigo de recompensas → formato progressivo por mês/tier
+            migrateRewardsData();
+            
+            if (!data.user) {
+                showAuthScreen();
+            } else {
+                showMainApp();
+                applyTheme(data.theme || 'default');
+                updateUserInterface();
+            }
+        }
+
+        function migrateRewardsData() {
+            let migrated = false;
+
+            // Garante que rewardHistory existe
+            if (!Array.isArray(data.rewardHistory)) {
+                data.rewardHistory = [];
+                migrated = true;
+            }
+
+            // Garante que currentMonthReward existe
+            if (data.currentMonthReward === undefined) {
+                data.currentMonthReward = null;
+                migrated = true;
+            }
+
+            // Garante que joinDate existe
+            if (!data.joinDate) {
+                data.joinDate = new Date().toISOString();
+                migrated = true;
+            }
+
+            // Detecta formato antigo: recompensas com 'required'/'unlocked' ao invés de 'month'/'tier'
+            if (data.rewards && data.rewards.length > 0) {
+                const hasOldFormat = data.rewards.some(r => 
+                    r.hasOwnProperty('required') || r.hasOwnProperty('unlocked')
+                );
+                const hasNewFormat = data.rewards.some(r => 
+                    r.hasOwnProperty('month') && r.hasOwnProperty('tier')
+                );
+
+                if (hasOldFormat && !hasNewFormat) {
+                    // Substitui completamente pelo formato novo padrão
+                    data.rewards = JSON.parse(JSON.stringify(defaultData.rewards));
+                    data.currentMonthReward = null;
+                    migrated = true;
+                }
+            } else if (!data.rewards || data.rewards.length === 0) {
+                // Sem recompensas, carrega as padrão
+                data.rewards = JSON.parse(JSON.stringify(defaultData.rewards));
+                migrated = true;
+            }
+
+            if (migrated) {
+                saveData();
+            }
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').classList.remove('hide');
+            document.getElementById('mainApp').classList.add('hide');
+        }
+
+        function showMainApp() {
+            document.getElementById('authScreen').classList.add('hide');
+            document.getElementById('mainApp').classList.remove('hide');
+            renderDaily();
+            renderWeekly();
+            renderRewards();
+            renderRewardsManagement();
+            updateProgress();
+            checkMissedHabits();
+            updateSheetsStatus();
+        }
+
+        // Função de emergência para resetar se travar
+        function forceReset() {
+            if (confirm('Isso vai limpar todos os dados e fazer você começar do zero. Tem certeza?')) {
+                localStorage.removeItem('dailyTrackData');
+                location.reload();
+            }
+        }
+
+        // IMC Functions
+        function calculateIMC(weight, height) {
+            const heightInMeters = height / 100;
+            return (weight / (heightInMeters * heightInMeters)).toFixed(1);
+        }
+
+        function getIMCClassification(imc) {
+            if (imc < 18.5) return { 
+                status: 'Abaixo do peso', 
+                class: 'imc-underweight',
+                color: '#3b82f6',
+                description: 'Você está abaixo do peso ideal. Consulte um nutricionista.'
+            };
+            if (imc < 25) return { 
+                status: 'Peso Normal', 
+                class: 'imc-normal',
+                color: '#10b981',
+                description: 'Parabéns! Você está no peso ideal.'
+            };
+            if (imc < 30) return { 
+                status: 'Sobrepeso', 
+                class: 'imc-overweight',
+                color: '#f59e0b',
+                description: 'Você está acima do peso. Cuide da alimentação e exercícios.'
+            };
+            if (imc < 35) return { 
+                status: 'Obesidade Grau I', 
+                class: 'imc-obese1',
+                color: '#ef4444',
+                description: 'Obesidade moderada. Procure acompanhamento médico.'
+            };
+            if (imc < 40) return { 
+                status: 'Obesidade Grau II', 
+                class: 'imc-obese2',
+                color: '#dc2626',
+                description: 'Obesidade severa. Acompanhamento médico recomendado.'
+            };
+            return { 
+                status: 'Obesidade Grau III', 
+                class: 'imc-obese3',
+                color: '#991b1b',
+                description: 'Obesidade mórbida. Procure orientação médica urgente.'
+            };
+        }
+
+        function calculateIMCPreview() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            
+            if (height && weight) {
+                const imc = calculateIMC(weight, height);
+                const classification = getIMCClassification(imc);
+                
+                const preview = document.getElementById('imcPreview');
+                const value = document.getElementById('imcValue');
+                const status = document.getElementById('imcStatus');
+                
+                preview.style.display = 'block';
+                value.textContent = `IMC: ${imc}`;
+                status.textContent = classification.status;
+                status.className = `imc-status ${classification.class}`;
+            }
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            e.stopPropagation(); // Previne propagação do evento
+            
+            try {
+                const firstName = document.getElementById('firstName').value;
+                const lastName = document.getElementById('lastName').value;
+                const age = parseInt(document.getElementById('age').value);
+                const gender = document.querySelector('input[name="gender"]:checked').value;
+                const height = parseInt(document.getElementById('height').value);
+                const weight = parseFloat(document.getElementById('weight').value);
+                
+                if (!firstName || !lastName || !age || !height || !weight) {
+                    alert('Por favor, preencha todos os campos');
+                    return false;
+                }
+                
+                const imc = calculateIMC(weight, height);
+                const classification = getIMCClassification(imc);
+                
+                data.user = {
+                    firstName,
+                    lastName,
+                    age,
+                    gender,
+                    height,
+                    weight,
+                    imc,
+                    imcStatus: classification.status,
+                    imcClass: classification.class,
+                    imcDescription: classification.description,
+                    imcColor: classification.color,
+                    lastLogin: new Date().toISOString()
+                };
+                
+                data.joinDate = new Date().toISOString();
+                
+                saveData();
+                showMainApp();
+                showToast('Bem-vindo ao Done!', `Olá ${firstName}, vamos alcançar seus objetivos! 🎯`);
+                
+                return false; // Previne submit padrão
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                alert('Ocorreu um erro. Tente novamente.');
+                return false;
+            }
+        }
+
+        function updateUserInterface() {
+            if (!data || !data.user) return;
+            
+            const { firstName, lastName, age, gender, height, weight, imc, imcStatus, imcClass } = data.user;
+            
+            document.getElementById('userName').textContent = `Olá, ${firstName}`;
+            document.getElementById('greeting').textContent = getGreeting();
+            
+            const avatar = gender === 'M' ? '👨' : '👩';
+            document.getElementById('profileAvatar').textContent = avatar;
+            document.getElementById('profileName').textContent = `${firstName} ${lastName}`;
+            document.getElementById('profileDetails').textContent = `${age} anos • ${gender === 'M' ? 'Masculino' : 'Feminino'}`;
+            
+            const imcBadge = document.getElementById('imcBadge');
+            imcBadge.textContent = `IMC: ${imc} (${imcStatus})`;
+            imcBadge.className = `imc-badge ${imcClass}`;
+            
+            document.getElementById('statHeight').textContent = height;
+            document.getElementById('statWeight').textContent = weight;
+            document.getElementById('statAge').textContent = age;
+            document.getElementById('currentWeightDisplay').textContent = `${weight} kg`;
+            
+            document.getElementById('levelText').textContent = `Nível ${data.level} • ${data.xp} XP`;
+        }
+
+        function getGreeting() {
+            const hour = new Date().getHours();
+            const name = data && data.user ? data.user.firstName : '';
+            const greeting = hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite';
+            return name ? `${greeting}, ${name}` : greeting;
+        }
+
+        function editProfile() {
+            if (!data || !data.user) return;
+            
+            const user = data.user;
+            document.getElementById('firstName').value = user.firstName;
+            document.getElementById('lastName').value = user.lastName;
+            document.getElementById('age').value = user.age;
+            document.getElementById('height').value = user.height;
+            document.getElementById('weight').value = user.weight;
+            document.querySelector(`input[name="gender"][value="${user.gender}"]`).checked = true;
+            calculateIMCPreview();
+            showAuthScreen();
+        }
+
+        function updateWeight() {
+            if (!data || !data.user) return;
+            document.getElementById('newWeight').value = data.user.weight;
+            calculateNewIMC();
+            document.getElementById('weightModal').classList.add('active');
+        }
+
+        function calculateNewIMC() {
+            const weight = parseFloat(document.getElementById('newWeight').value);
+            if (weight && data.user.height) {
+                const imc = calculateIMC(weight, data.user.height);
+                const classification = getIMCClassification(imc);
+                
+                document.getElementById('weightImcPreview').style.display = 'block';
+                document.getElementById('newImcValue').textContent = `IMC: ${imc}`;
+                const statusEl = document.getElementById('newImcStatus');
+                statusEl.textContent = classification.status;
+                statusEl.className = `imc-status ${classification.class}`;
+            }
+        }
+
+        document.getElementById('newWeight').addEventListener('input', calculateNewIMC);
+
+        function saveNewWeight() {
+            const newWeight = parseFloat(document.getElementById('newWeight').value);
+            if (!newWeight) return;
+            
+            data.user.weight = newWeight;
+            data.user.imc = calculateIMC(newWeight, data.user.height);
+            const classification = getIMCClassification(data.user.imc);
+            data.user.imcStatus = classification.status;
+            data.user.imcClass = classification.class;
+            data.user.imcDescription = classification.description;
+            data.user.imcColor = classification.color;
+            
+            saveData();
+            updateUserInterface();
+            closeWeightModal();
+            showToast('Peso Atualizado!', `Seu IMC agora é ${data.user.imc} (${data.user.imcStatus})`);
+        }
+
+        function closeWeightModal() {
+            document.getElementById('weightModal').classList.remove('active');
+        }
+
+        function setTheme(themeName) {
+            data.theme = themeName;
+            applyTheme(themeName);
+            saveData();
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            showToast('Tema alterado!', 'Aparência atualizada com sucesso 🎨');
+        }
+
+        function applyTheme(themeName) {
+            document.body.setAttribute('data-theme', themeName);
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `done-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            showToast('Dados exportados!', 'Backup JSON salvo com sucesso 💾');
+        }
+
+        // === IMPORTAR BACKUP JSON ===
+        function importData() {
+            document.getElementById('importFileInput').click();
+        }
+
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+
+                    // Validação básica da estrutura
+                    if (!imported.habits || !Array.isArray(imported.habits)) {
+                        showToast('Erro na importação', 'Arquivo inválido: não contém hábitos');
+                        return;
+                    }
+
+                    if (confirm('Isso substituirá TODOS os seus dados atuais pelo backup importado. Deseja continuar?')) {
+                        data = imported;
+                        saveData();
+                        showToast('Dados importados! ✅', 'Backup restaurado com sucesso');
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                } catch (err) {
+                    console.error('Erro ao importar:', err);
+                    showToast('Erro na importação', 'Arquivo JSON inválido ou corrompido');
+                }
+            };
+            reader.readAsText(file);
+            // Reset para permitir re-importar o mesmo arquivo
+            event.target.value = '';
+        }
+
+        // === GOOGLE SHEETS SYNC ===
+        const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwHhWBRN0HRJ8AuizWKoCEgFYjpqY_9T3jLMB4al0FrC9ghpWue5n2cb0EdlDsWoTiq/exec';
+
+        function getGoogleSheetsUrl() {
+            return localStorage.getItem('googleSheetsUrl') || DEFAULT_SHEETS_URL;
+        }
+
+        function updateSheetsStatus() {
+            const statusEl = document.getElementById('sheetsStatus');
+            if (statusEl) {
+                statusEl.textContent = getGoogleSheetsUrl() ? 'Configurado ✅' : 'Não configurado';
+            }
+        }
+
+        function exportToGoogleSheets() {
+            const url = getGoogleSheetsUrl();
+            if (!url) {
+                showToast('Não configurado', 'Configure a URL do Google Sheets primeiro ⚙️');
+                openSheetsConfigModal();
+                return;
+            }
+
+            showToast('Enviando...', 'Sincronizando dados com Google Sheets 📊');
+
+            // Preparar dados para envio
+            const payload = {
+                user: data.user,
+                habits: data.habits.map(h => ({
+                    id: h.id,
+                    name: h.name,
+                    icon: h.icon,
+                    category: h.category,
+                    timeOfDay: h.timeOfDay,
+                    days: h.days.join(','),
+                    dosage: h.dosage || '',
+                    streak: h.streak,
+                    color: h.color,
+                    completedDates: Object.keys(h.completed).join(' | ')
+                })),
+                water: data.water,
+                rewards: data.rewards,
+                xp: data.xp,
+                level: data.level,
+                theme: data.theme,
+                syncDate: new Date().toISOString()
+            };
+
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain' },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                showToast('Sincronizado! 📊', 'Dados enviados para o Google Sheets');
+            })
+            .catch(err => {
+                console.error('Erro ao sincronizar:', err);
+                showToast('Erro na sincronização', 'Verifique a URL e tente novamente');
+            });
+        }
+
+        function openSheetsConfigModal() {
+            const currentUrl = getGoogleSheetsUrl();
+            document.getElementById('sheetsUrl').value = currentUrl;
+            document.getElementById('sheetsConfigModal').classList.add('active');
+        }
+
+        function closeSheetsConfigModal() {
+            document.getElementById('sheetsConfigModal').classList.remove('active');
+        }
+
+        function saveSheetsConfig() {
+            const url = document.getElementById('sheetsUrl').value.trim();
+            if (url && !url.startsWith('https://script.google.com/')) {
+                showToast('URL inválida', 'A URL deve começar com https://script.google.com/');
+                return;
+            }
+            localStorage.setItem('googleSheetsUrl', url);
+            updateSheetsStatus();
+            closeSheetsConfigModal();
+            showToast('Configuração salva! ⚙️', url ? 'Google Sheets configurado com sucesso' : 'Configuração removida');
+        }
+
+        function copySheetsScript() {
+            const script = `// Cole este código no Apps Script da sua planilha Google
+// Depois: Implantar → Nova implantação → App da Web → Qualquer pessoa
+
+function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet();
+    var data = JSON.parse(e.postData.contents);
+    
+    // === ABA RESUMO ===
+    var resumo = sheet.getSheetByName('Resumo') || sheet.insertSheet('Resumo');
+    resumo.clear();
+    resumo.appendRow(['Done - Sincronização', new Date()]);
+    resumo.appendRow(['']);
+    resumo.appendRow(['Nome', data.user ? data.user.firstName + ' ' + data.user.lastName : '']);
+    resumo.appendRow(['Nível', data.level]);
+    resumo.appendRow(['XP', data.xp]);
+    resumo.appendRow(['Tema', data.theme]);
+    resumo.appendRow(['Água Hoje', data.water ? data.water.current + '/' + data.water.goal + 'ml' : '']);
+    
+    // === ABA HÁBITOS ===
+    var habitos = sheet.getSheetByName('Hábitos') || sheet.insertSheet('Hábitos');
+    habitos.clear();
+    habitos.appendRow(['ID', 'Nome', 'Ícone', 'Categoria', 'Período', 'Dias', 'Dosagem', 'Streak', 'Datas Completadas']);
+    
+    if (data.habits) {
+      data.habits.forEach(function(h) {
+        habitos.appendRow([h.id, h.name, h.icon, h.category, h.timeOfDay, h.days, h.dosage, h.streak, h.completedDates]);
+      });
+    }
+    
+    // === ABA RECOMPENSAS ===
+    var recompensas = sheet.getSheetByName('Recompensas') || sheet.insertSheet('Recompensas');
+    recompensas.clear();
+    recompensas.appendRow(['ID', 'Nome', 'Ícone', 'Descrição', 'Requerido %', 'Desbloqueado']);
+    
+    if (data.rewards) {
+      data.rewards.forEach(function(r) {
+        recompensas.appendRow([r.id, r.name, r.icon, r.description, r.required, r.unlocked ? 'Sim' : 'Não']);
+      });
+    }
+    
+    return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  return ContentService.createTextOutput('Done API ativa!')
+    .setMimeType(ContentService.MimeType.TEXT);
+}`;
+
+            navigator.clipboard.writeText(script).then(() => {
+                showToast('Código copiado! 📋', 'Cole no Apps Script da sua planilha');
+            }).catch(() => {
+                // Fallback para navegadores sem clipboard API
+                const ta = document.createElement('textarea');
+                ta.value = script;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+                showToast('Código copiado! 📋', 'Cole no Apps Script da sua planilha');
+            });
+        }
+
+        function resetData() {
+            if (confirm('ATENÇÃO: Isso apagará TODOS os seus dados. Deseja continuar?')) {
+                localStorage.removeItem('dailyTrackData');
+                location.reload();
+            }
+        }
+
+        function logout() {
+            if (confirm('Deseja sair da sua conta?')) {
+                data.user = null;
+                saveData();
+                location.reload();
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem('dailyTrackData', JSON.stringify(data));
+            } catch (e) {
+                console.error('Erro ao salvar:', e);
+                showToast('Erro', 'Não foi possível salvar os dados');
+            }
+        }
+
+        function setScreen(screen) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(screen + 'Screen').classList.add('active');
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            if (screen === 'daily') navItems[0].classList.add('active');
+            else if (screen === 'weekly') navItems[1].classList.add('active');
+            else if (screen === 'rewards') navItems[3].classList.add('active');
+            else if (screen === 'settings') {
+                navItems[4].classList.add('active');
+                renderRewardsManagement();
+            }
+            
+            currentScreen = screen;
+            
+            if (screen === 'weekly') renderWeekly();
+            if (screen === 'rewards') renderRewards();
+        }
+
+        // FUNÇÃO DE SORTEIO DE RECOMPENSA (SISTEMA PROGRESSIVO)
+        function sortearRecompensa() {
+            const userMonth = getUserMonth();
+            const completionRate = calculateMonthlyCompletion();
+            const now = new Date();
+            const currentDay = now.getDate();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const minimumDaysForRaffle = Math.ceil(daysInMonth * 0.5);
+
+            // Já sorteou este mês?
+            if (data.currentMonthReward) {
+                const wonDate = new Date(data.currentMonthReward.date);
+                if (wonDate.getMonth() === now.getMonth() && wonDate.getFullYear() === now.getFullYear()) {
+                    showToast('Já sorteou! 🎲', `Você já ganhou "${data.currentMonthReward.name}" este mês`);
+                    return;
+                }
+            }
+
+            if (currentDay < minimumDaysForRaffle) {
+                showToast('Aguarde! 📅', `O sorteio estará disponível a partir do dia ${minimumDaysForRaffle}`);
+                return;
+            }
+
+            if (completionRate < 50) {
+                showToast('Continue assim! 💪', `Mínimo 50% para sortear. Atual: ${Math.round(completionRate)}%`);
+                return;
+            }
+
+            // Determinar faixa de tier pela porcentagem
+            let tierLevel;
+            if (completionRate >= 90) tierLevel = 'gold';
+            else if (completionRate >= 70) tierLevel = 'silver';
+            else tierLevel = 'bronze';
+
+            // Recompensas elegíveis: do mês atual (capped a 6) + faixa alcançada + inferiores
+            const effectiveMonth = Math.min(userMonth, 6);
+            const tierOrder = ['bronze', 'silver', 'gold'];
+            const maxTierIdx = tierOrder.indexOf(tierLevel);
+            const eligibleTiers = tierOrder.slice(0, maxTierIdx + 1);
+
+            const available = data.rewards.filter(r =>
+                r.month === effectiveMonth &&
+                eligibleTiers.includes(r.tier)
+            );
+
+            // Excluir recompensas já ganhas no ciclo atual (últimos 6 meses)
+            const recentWonIds = (data.rewardHistory || [])
+                .filter(h => {
+                    const hDate = new Date(h.date);
+                    const monthsAgo = (now.getFullYear() - hDate.getFullYear()) * 12 + (now.getMonth() - hDate.getMonth());
+                    return monthsAgo < 6;
+                })
+                .map(h => h.rewardId);
+
+            let pool = available.filter(r => !recentWonIds.includes(r.id));
+            
+            // Se todas foram ganhas recentemente, usa todas do nível
+            if (pool.length === 0) pool = available;
+
+            if (pool.length === 0) {
+                showToast('Sem recompensas', `Cadastre recompensas para o Mês ${effectiveMonth} primeiro!`);
+                return;
+            }
+
+            // Priorizar tier mais alto
+            const bestTier = tierOrder[maxTierIdx];
+            const bestPool = pool.filter(r => r.tier === bestTier);
+            const finalPool = bestPool.length > 0 ? bestPool : pool;
+
+            // Sortear!
+            const sorteada = finalPool[Math.floor(Math.random() * finalPool.length)];
+
+            // Registrar no histórico
+            const historyEntry = {
+                rewardId: sorteada.id,
+                name: sorteada.name,
+                icon: sorteada.icon,
+                description: sorteada.description,
+                month: effectiveMonth,
+                tier: sorteada.tier,
+                tierLevel: tierLevel,
+                completionRate: Math.round(completionRate),
+                date: now.toISOString()
+            };
+
+            if (!data.rewardHistory) data.rewardHistory = [];
+            data.rewardHistory.push(historyEntry);
+            data.currentMonthReward = historyEntry;
+            saveData();
+
+            // Mostrar resultado
+            const tierNames = { bronze: '🥉 Bronze', silver: '🥈 Prata', gold: '🥇 Ouro' };
+            document.getElementById('sorteioIcon').textContent = sorteada.icon;
+            document.getElementById('sorteioName').textContent = sorteada.name;
+            document.getElementById('sorteioDesc').textContent = `${sorteada.description}\n\n${tierNames[tierLevel]} • Mês ${effectiveMonth} • ${Math.round(completionRate)}% de conclusão`;
+            document.getElementById('sorteioModal').classList.add('active');
+
+            createConfetti(window.innerWidth / 2, window.innerHeight / 2);
+            renderRewards();
+        }
+
+        function closeSorteioModal() {
+            document.getElementById('sorteioModal').classList.remove('active');
+        }
+
+        // CRUD HABITS FUNCTIONS
+        function openModal(habitId = null) {
+            editingHabitId = habitId;
+            selectedTime = 'morning';
+            selectedDays = [0,1,2,3,4,5,6];
+            
+            const modalTitle = document.getElementById('habitModalTitle');
+            const saveBtn = document.getElementById('saveHabitBtn');
+            const deleteBtn = document.getElementById('deleteHabitBtn');
+            
+            if (habitId) {
+                // Edit mode
+                const habit = data.habits.find(h => h.id === habitId);
+                if (!habit) return;
+                
+                modalTitle.textContent = 'Editar Hábito';
+                saveBtn.textContent = 'Salvar Alterações';
+                deleteBtn.style.display = 'block';
+                
+                document.getElementById('habitName').value = habit.name;
+                document.getElementById('habitIcon').value = habit.icon;
+                document.getElementById('habitCategory').value = habit.category;
+                document.getElementById('habitDosage').value = habit.dosage || '';
+                
+                selectedTime = habit.timeOfDay;
+                selectedDays = [...habit.days];
+                
+                toggleCategoryFields();
+            } else {
+                // Create mode
+                modalTitle.textContent = 'Novo Hábito';
+                saveBtn.textContent = 'Criar Hábito';
+                deleteBtn.style.display = 'none';
+                
+                document.getElementById('habitName').value = '';
+                document.getElementById('habitIcon').value = '⭐';
+                document.getElementById('habitCategory').value = 'habit';
+                document.getElementById('habitDosage').value = '';
+                
+                toggleCategoryFields();
+            }
+            
+            // Update UI selections
+            document.querySelectorAll('.time-option').forEach(el => {
+                el.classList.toggle('active', el.dataset.time === selectedTime);
+            });
+            
+            document.querySelectorAll('.day-chip').forEach(el => {
+                const day = parseInt(el.dataset.day);
+                el.classList.toggle('active', selectedDays.includes(day));
+            });
+            
+            document.getElementById('habitModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('habitModal').classList.remove('active');
+            editingHabitId = null;
+        }
+
+        function selectTime(el) {
+            document.querySelectorAll('.time-option').forEach(e => e.classList.remove('active'));
+            el.classList.add('active');
+            selectedTime = el.dataset.time;
+        }
+
+        function toggleDay(el) {
+            const day = parseInt(el.dataset.day);
+            el.classList.toggle('active');
+            
+            if (el.classList.contains('active')) {
+                if (!selectedDays.includes(day)) selectedDays.push(day);
+            } else {
+                selectedDays = selectedDays.filter(d => d !== day);
+            }
+        }
+
+        function toggleCategoryFields() {
+            const cat = document.getElementById('habitCategory').value;
+            const dosageGroup = document.getElementById('dosageGroup');
+            dosageGroup.style.display = (cat === 'medication' || cat === 'supplement') ? 'block' : 'none';
+        }
+
+        function saveHabit() {
+            const name = document.getElementById('habitName').value;
+            const icon = document.getElementById('habitIcon').value || '⭐';
+            const category = document.getElementById('habitCategory').value;
+            const dosage = document.getElementById('habitDosage').value;
+            
+            if (!name) {
+                alert('Digite um nome para o hábito');
+                return;
+            }
+            
+            if (selectedDays.length === 0) {
+                alert('Selecione pelo menos um dia da semana');
+                return;
+            }
+            
+            const colors = {
+                habit: 'var(--primary)',
+                medication: '#3b82f6',
+                supplement: '#8b5cf6',
+                exercise: '#10b981'
+            };
+            
+            if (editingHabitId) {
+                // Update existing
+                const habit = data.habits.find(h => h.id === editingHabitId);
+                habit.name = name;
+                habit.icon = icon;
+                habit.category = category;
+                habit.timeOfDay = selectedTime;
+                habit.days = selectedDays.sort();
+                habit.dosage = dosage;
+                habit.color = colors[category] || 'var(--primary)';
+                
+                showToast('Hábito Atualizado!', `${name} foi atualizado com sucesso`);
+            } else {
+                // Create new
+                const newHabit = {
+                    id: Date.now(),
+                    name,
+                    icon,
+                    category,
+                    timeOfDay: selectedTime,
+                    days: selectedDays.sort(),
+                    dosage,
+                    streak: 0,
+                    color: colors[category] || 'var(--primary)',
+                    completed: {}
+                };
+                data.habits.push(newHabit);
+                showToast('Hábito Criado!', `${name} foi adicionado à sua rotina`);
+            }
+            
+            saveData();
+            closeModal();
+            renderDaily();
+            renderWeekly();
+        }
+
+        function deleteHabit() {
+            if (!editingHabitId) return;
+            
+            if (confirm('Tem certeza que deseja excluir este hábito? Todos os dados históricos serão perdidos.')) {
+                data.habits = data.habits.filter(h => h.id !== editingHabitId);
+                saveData();
+                closeModal();
+                renderDaily();
+                renderWeekly();
+                showToast('Hábito Excluído', 'O hábito foi removido permanentemente');
+            }
+        }
+
+        function editHabit(habitId, event) {
+            if (event) event.stopPropagation();
+            openModal(habitId);
+        }
+
+        function deleteHabitConfirm(habitId, event) {
+            if (event) event.stopPropagation();
+            if (confirm('Tem certeza que deseja excluir este hábito?')) {
+                data.habits = data.habits.filter(h => h.id !== habitId);
+                saveData();
+                renderDaily();
+                renderWeekly();
+                showToast('Hábito Excluído', 'O hábito foi removido permanentemente');
+            }
+        }
+
+        // =========================================
+        // SISTEMA PROGRESSIVO DE RECOMPENSAS
+        // =========================================
+
+        const TIER_CONFIG = {
+            1: { name: 'Bronze', icon: '🥉', color: '#9ca3af' },
+            2: { name: 'Prata', icon: '🥈', color: '#22c55e' },
+            3: { name: 'Ouro', icon: '🥇', color: '#3b82f6' },
+            4: { name: 'Diamante', icon: '💎', color: '#8b5cf6' },
+            5: { name: 'Platina', icon: '👑', color: '#f59e0b' },
+            6: { name: 'Lendário', icon: '🏆', color: '#ef4444' }
+        };
+
+        const TIER_THRESHOLDS = {
+            bronze: { min: 50, label: '🥉 50%+', color: '#9ca3af' },
+            silver: { min: 70, label: '🥈 70%+', color: '#3b82f6' },
+            gold:   { min: 90, label: '🥇 90%+', color: '#f59e0b' }
+        };
+
+        function getUserMonth() {
+            if (!data.joinDate) return 1;
+            const join = new Date(data.joinDate);
+            const now = new Date();
+            const months = (now.getFullYear() - join.getFullYear()) * 12 + (now.getMonth() - join.getMonth()) + 1;
+            return Math.max(1, months);
+        }
+
+        // Rewards Management (Settings)
+        function renderRewardsManagement() {
+            const container = document.getElementById('rewardsManageList');
+            if (!container) return;
+
+            const filterEl = document.getElementById('rewardMonthFilter');
+            const selectedMonth = filterEl ? parseInt(filterEl.value) : 1;
+
+            const monthRewards = data.rewards.filter(r => r.month === selectedMonth);
+            const tierOrder = ['gold', 'silver', 'bronze'];
+
+            if (monthRewards.length === 0) {
+                container.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary);">Nenhuma recompensa cadastrada para este mês.<br>Toque no <strong>+</strong> para adicionar.</div>';
+                return;
+            }
+
+            let html = '';
+            tierOrder.forEach(tier => {
+                const tierRewards = monthRewards.filter(r => r.tier === tier);
+                if (tierRewards.length === 0) return;
+
+                const tierInfo = TIER_THRESHOLDS[tier];
+                html += `<div style="padding: 8px 16px 4px; font-size: 12px; font-weight: 700; color: ${tierInfo.color}; text-transform: uppercase; letter-spacing: 0.5px;">${tierInfo.label}</div>`;
+
+                tierRewards.forEach(reward => {
+                    html += `
+                        <div class="reward-manage-item" onclick="editReward(${reward.id})">
+                            <div class="reward-manage-icon">${reward.icon}</div>
+                            <div class="reward-manage-info">
+                                <div class="reward-manage-name">${reward.name}</div>
+                                <div class="reward-manage-meta">${reward.description || 'Sem descrição'}</div>
+                            </div>
+                            <div class="reward-manage-actions" onclick="event.stopPropagation()">
+                                <button class="icon-btn" onclick="editReward(${reward.id})">✏️</button>
+                                <button class="icon-btn delete" onclick="deleteRewardConfirm(${reward.id})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            container.innerHTML = html;
+        }
+
+        function openRewardModal() {
+            editingRewardId = null;
+            document.getElementById('rewardModalTitle').textContent = 'Nova Recompensa';
+            document.getElementById('rewardName').value = '';
+            document.getElementById('rewardIcon').value = '🎁';
+            document.getElementById('rewardDesc').value = '';
+
+            // Pré-selecionar mês do filtro ativo
+            const filterEl = document.getElementById('rewardMonthFilter');
+            const activeMonth = filterEl ? filterEl.value : '1';
+            document.getElementById('rewardMonth').value = activeMonth;
+            document.getElementById('rewardTier').value = 'silver';
+
+            document.getElementById('deleteRewardBtn').style.display = 'none';
+            document.getElementById('saveRewardBtn').textContent = 'Criar Recompensa';
+            document.getElementById('rewardModal').classList.add('active');
+        }
+
+        function editReward(id) {
+            const reward = data.rewards.find(r => r.id === id);
+            if (!reward) return;
+
+            editingRewardId = id;
+            document.getElementById('rewardModalTitle').textContent = 'Editar Recompensa';
+            document.getElementById('rewardName').value = reward.name;
+            document.getElementById('rewardIcon').value = reward.icon;
+            document.getElementById('rewardDesc').value = reward.description;
+            document.getElementById('rewardMonth').value = reward.month || 1;
+            document.getElementById('rewardTier').value = reward.tier || 'silver';
+            document.getElementById('deleteRewardBtn').style.display = 'block';
+            document.getElementById('saveRewardBtn').textContent = 'Salvar Alterações';
+            document.getElementById('rewardModal').classList.add('active');
+        }
+
+        function saveReward() {
+            const name = document.getElementById('rewardName').value;
+            const icon = document.getElementById('rewardIcon').value || '🎁';
+            const description = document.getElementById('rewardDesc').value;
+            const month = parseInt(document.getElementById('rewardMonth').value);
+            const tier = document.getElementById('rewardTier').value;
+
+            if (!name) {
+                alert('Digite um nome para a recompensa');
+                return;
+            }
+
+            if (editingRewardId) {
+                const reward = data.rewards.find(r => r.id === editingRewardId);
+                reward.name = name;
+                reward.icon = icon;
+                reward.description = description;
+                reward.month = month;
+                reward.tier = tier;
+                showToast('Recompensa Atualizada!', `${name} foi atualizada`);
+            } else {
+                data.rewards.push({
+                    id: Date.now(),
+                    name, icon, description, month, tier
+                });
+                showToast('Recompensa Criada!', `${name} adicionada ao Mês ${month}`);
+            }
+
+            saveData();
+            closeRewardModal();
+            renderRewards();
+            renderRewardsManagement();
+        }
+
+        function deleteRewardConfirm(id) {
+            if (confirm('Deseja realmente excluir esta recompensa?')) {
+                data.rewards = data.rewards.filter(r => r.id !== id);
+                saveData();
+                renderRewards();
+                renderRewardsManagement();
+                showToast('Recompensa Excluída', 'A recompensa foi removida');
+            }
+        }
+
+        function deleteReward() {
+            if (editingRewardId) {
+                deleteRewardConfirm(editingRewardId);
+                closeRewardModal();
+            }
+        }
+
+        function closeRewardModal() {
+            document.getElementById('rewardModal').classList.remove('active');
+            editingRewardId = null;
+        }
+
+        // === RENDER TELA DE RECOMPENSAS ===
+        function renderRewards() {
+            const userMonth = getUserMonth();
+            const effectiveMonth = Math.min(userMonth, 6);
+            const completionRate = calculateMonthlyCompletion();
+            const tierConfig = TIER_CONFIG[effectiveMonth];
+            const now = new Date();
+
+            // Verificar se já sorteou este mês
+            let alreadyWon = false;
+            if (data.currentMonthReward) {
+                const wonDate = new Date(data.currentMonthReward.date);
+                alreadyWon = wonDate.getMonth() === now.getMonth() && wonDate.getFullYear() === now.getFullYear();
+            }
+
+            // === TIER HEADER (escada de progresso) ===
+            const tierHeader = document.getElementById('tierHeader');
+            let stairHtml = '<div class="tier-staircase">';
+            for (let m = 1; m <= 6; m++) {
+                const cfg = TIER_CONFIG[m];
+                const height = 20 + (m * 10);
+                const isActive = m === effectiveMonth;
+                const isCompleted = m < effectiveMonth;
+                stairHtml += `
+                    <div class="tier-step ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''} tier-${m}"
+                         style="height: ${height}px;">
+                        <div class="tier-step-icon">${cfg.icon}</div>
+                        <span>${m}</span>
+                    </div>
+                `;
+            }
+            stairHtml += '</div>';
+
+            // Barra de progresso do mês
+            let currentTierColor = '#9ca3af';
+            if (completionRate >= 90) currentTierColor = '#f59e0b';
+            else if (completionRate >= 70) currentTierColor = '#3b82f6';
+            else if (completionRate >= 50) currentTierColor = '#22c55e';
+
+            tierHeader.innerHTML = `
+                <div class="tier-month-badge tier-${effectiveMonth}">
+                    ${tierConfig.icon} Mês ${effectiveMonth} — ${tierConfig.name}
+                </div>
+                ${userMonth > 6 ? `<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">Ciclo ${Math.ceil(userMonth / 6)} • Mês original: ${userMonth}</div>` : ''}
+                ${stairHtml}
+                <div style="font-size: 14px; font-weight: 600; color: var(--text);">
+                    Progresso do Mês: <span style="color: ${currentTierColor};">${Math.round(completionRate)}%</span>
+                </div>
+                <div class="tier-progress-bar">
+                    <div class="tier-progress-fill" style="width: ${Math.min(100, completionRate)}%; background: linear-gradient(90deg, #22c55e, ${currentTierColor});"></div>
+                </div>
+                <div class="tier-thresholds">
+                    <div class="tier-threshold ${completionRate >= 50 ? 'reached' : ''}">
+                        <span>🥉</span><span>50%</span>
+                    </div>
+                    <div class="tier-threshold ${completionRate >= 70 ? 'reached' : ''}">
+                        <span>🥈</span><span>70%</span>
+                    </div>
+                    <div class="tier-threshold ${completionRate >= 90 ? 'reached' : ''}">
+                        <span>🥇</span><span>90%</span>
+                    </div>
+                </div>
+            `;
+
+            // === BOTÃO DE SORTEIO ===
+            const sorteioBtn = document.getElementById('sorteioBtn');
+            if (alreadyWon) {
+                const won = data.currentMonthReward;
+                sorteioBtn.innerHTML = `<span>${won.icon}</span><span>Recompensa do Mês: ${won.name}</span>`;
+                sorteioBtn.style.background = 'linear-gradient(135deg, #22c55e, #10b981)';
+                sorteioBtn.onclick = function() {
+                    document.getElementById('sorteioIcon').textContent = won.icon;
+                    document.getElementById('sorteioName').textContent = won.name;
+                    document.getElementById('sorteioDesc').textContent = won.description;
+                    document.getElementById('sorteioModal').classList.add('active');
+                };
+            } else {
+                sorteioBtn.innerHTML = '<span>🎲</span><span>Sortear Recompensa do Mês</span>';
+                sorteioBtn.style.background = 'linear-gradient(135deg, #f59e0b, #f97316)';
+                sorteioBtn.onclick = sortearRecompensa;
+            }
+
+            // === RECOMPENSAS DO MÊS POR FAIXA ===
+            const container = document.getElementById('tierRewardsContainer');
+            const monthRewards = data.rewards.filter(r => r.month === effectiveMonth);
+
+            if (monthRewards.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 32px; color: var(--text-secondary);">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🎁</div>
+                        <p>Nenhuma recompensa cadastrada para o Mês ${effectiveMonth}.</p>
+                        <p style="font-size: 13px; margin-top: 8px;">Vá em Perfil → Recompensas por Mês para adicionar.</p>
+                    </div>
+                `;
+            } else {
+                const tierOrder = ['gold', 'silver', 'bronze'];
+                let rewardsHtml = '';
+
+                tierOrder.forEach(tier => {
+                    const tierRewards = monthRewards.filter(r => r.tier === tier);
+                    if (tierRewards.length === 0) return;
+
+                    const info = TIER_THRESHOLDS[tier];
+                    const isReached = completionRate >= info.min;
+
+                    rewardsHtml += `
+                        <div class="tier-reward-section">
+                            <div class="tier-reward-label">
+                                <div class="tier-reward-dot" style="background: ${info.color};"></div>
+                                ${info.label} ${isReached ? '✅' : ''}
+                            </div>
+                            <div class="rewards-grid">
+                    `;
+
+                    tierRewards.forEach(reward => {
+                        const isWon = alreadyWon && data.currentMonthReward.rewardId === reward.id;
+                        const cardClass = isWon ? 'won' : (isReached ? 'unlocked' : 'locked');
+
+                        rewardsHtml += `
+                            <div class="reward-card ${cardClass}">
+                                <div class="reward-icon">${reward.icon}</div>
+                                <div class="reward-name">${reward.name}</div>
+                                <div class="reward-desc">${reward.description}</div>
+                                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                                    ${isWon ? '🏆 Sorteada!' : (isReached ? '✨ Elegível' : `Precisa ${info.min}%`)}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    rewardsHtml += '</div></div>';
+                });
+
+                container.innerHTML = rewardsHtml;
+            }
+
+            // === HISTÓRICO ===
+            renderRewardHistory();
+        }
+
+        function renderRewardHistory() {
+            const historyContainer = document.getElementById('rewardsHistory');
+            const history = (data.rewardHistory || []).slice().reverse();
+
+            if (history.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="empty-history">
+                        <div class="empty-history-icon">📜</div>
+                        <p>Nenhuma recompensa ganha ainda.</p>
+                        <p style="font-size: 13px; margin-top: 4px;">Complete seus hábitos e sorteie no final do mês!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const monthNames = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+            const tierNames = { bronze: '🥉', silver: '🥈', gold: '🥇' };
+
+            historyContainer.innerHTML = history.map(h => {
+                const date = new Date(h.date);
+                const cfg = TIER_CONFIG[h.month] || TIER_CONFIG[1];
+                return `
+                    <div class="history-item">
+                        <div class="history-month tier-${h.month}">
+                            <div class="history-month-label">${monthNames[date.getMonth()]}</div>
+                            <div class="history-month-num">${date.getFullYear().toString().slice(-2)}</div>
+                        </div>
+                        <div class="history-info">
+                            <div class="history-reward-name">${h.icon} ${h.name}</div>
+                            <div class="history-meta">
+                                ${cfg.icon} Mês ${h.month} • ${tierNames[h.tierLevel] || ''} ${h.completionRate}% • ${date.toLocaleDateString('pt-BR')}
+                            </div>
+                        </div>
+                        <div class="history-badge">${h.icon}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkRewards() {
+            // No sistema progressivo, o desbloqueio é visual (por completionRate)
+            // Não há mais desbloqueio automático — o sorteio é manual ao final do mês
+        }
+        function renderDaily() {
+            const today = new Date().getDay();
+            const dateStr = new Date().toDateString();
+            
+            const groups = { morning: [], afternoon: [], evening: [], night: [] };
+            const meds = [];
+            
+            data.habits.forEach(habit => {
+                if (!habit.days.includes(today)) return;
+                
+                if (habit.category === 'medication' || habit.category === 'supplement') {
+                    meds.push(habit);
+                } else {
+                    groups[habit.timeOfDay].push(habit);
+                }
+            });
+            
+            const medSection = document.getElementById('medSection');
+            const medList = document.getElementById('medList');
+            if (meds.length > 0) {
+                medSection.style.display = 'block';
+                medList.innerHTML = meds.map(med => {
+                    const isTaken = med.completed[dateStr];
+                    return `
+                        <div class="med-item ${isTaken ? 'taken' : ''}" onclick="toggleHabit(${med.id})">
+                            <div class="med-time">${getTimeLabel(med.timeOfDay)}</div>
+                            <div class="med-name">${med.icon} ${med.name}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary);">${med.dosage || ''}</div>
+                            <div class="med-check">${isTaken ? '✓' : ''}</div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                medSection.style.display = 'none';
+            }
+            
+            const container = document.getElementById('habitsByTime');
+            let html = '';
+            
+            Object.entries(groups).forEach(([time, habits]) => {
+                if (habits.length === 0) return;
+                
+                const timeLabels = {
+                    morning: { icon: '🌅', name: 'Manhã' },
+                    afternoon: { icon: '☀️', name: 'Tarde' },
+                    evening: { icon: '🌆', name: 'Noite' },
+                    night: { icon: '🌙', name: 'Madrugada' }
+                };
+                
+                html += `
+                    <div class="time-section ${time}">
+                        <div class="time-header">
+                            <div class="time-dot"></div>
+                            <span>${timeLabels[time].icon} ${timeLabels[time].name}</span>
+                        </div>
+                `;
+                
+                habits.forEach(habit => {
+                    const isCompleted = habit.completed[dateStr];
+                    
+                    html += `
+                        <div class="habit-card ${isCompleted ? 'completed' : ''}" onclick="toggleHabit(${habit.id})">
+                            <div class="habit-icon" style="background: ${habit.color}20; color: ${habit.color}">
+                                ${habit.icon}
+                            </div>
+                            <div class="habit-info">
+                                <div class="habit-title">${habit.name}</div>
+                                <div class="habit-meta">
+                                    <span class="streak-badge">🔥 ${habit.streak} dias</span>
+                                    ${habit.days.length < 7 ? `<span class="day-badge">${formatDays(habit.days)}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="habit-actions" onclick="event.stopPropagation()">
+                                <button class="habit-action-btn edit" onclick="editHabit(${habit.id}, event)" title="Editar">✏️</button>
+                                <button class="habit-action-btn delete" onclick="deleteHabitConfirm(${habit.id}, event)" title="Excluir">🗑️</button>
+                            </div>
+                            <div class="habit-check">${isCompleted ? '✓' : ''}</div>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            });
+            
+            container.innerHTML = html || '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Nenhuma atividade para hoje 🌟</div>';
+            
+            updateWaterDisplay();
+        }
+
+        function getTimeLabel(time) {
+            const labels = { morning: 'Manhã', afternoon: 'Tarde', evening: 'Noite', night: 'Madrugada' };
+            return labels[time] || time;
+        }
+
+        function formatDays(days) {
+            const dayNames = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+            return days.map(d => dayNames[d]).join('');
+        }
+
+        function toggleHabit(id) {
+            const habit = data.habits.find(h => h.id === id);
+            const today = new Date().toDateString();
+            
+            if (habit.completed[today]) {
+                delete habit.completed[today];
+                habit.streak = Math.max(0, habit.streak - 1);
+                data.xp = Math.max(0, data.xp - 10);
+            } else {
+                habit.completed[today] = true;
+                habit.streak++;
+                data.xp += 25;
+                
+                // Get click coordinates for confetti
+                const rect = event.currentTarget.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                createConfetti(x, y);
+                
+                showToast('Excelente!', `+25 XP por completar ${habit.name}`);
+                
+                if (data.xp >= data.level * 500) {
+                    data.level++;
+                    showToast('LEVEL UP! 🎉', `Você alcançou o nível ${data.level}!`);
+                }
+                
+                checkRewards();
+            }
+            
+            saveData();
+            renderDaily();
+            updateProgress();
+        }
+
+        function updateWaterDisplay() {
+            const percentage = Math.min(100, (data.water.current / data.water.goal) * 100);
+            document.getElementById('waterAmount').textContent = `${data.water.current}/${data.water.goal}ml`;
+            document.getElementById('waterCard').style.setProperty('--water-level', percentage + '%');
+            
+            if (percentage >= 100 && !data.water.completed) {
+                data.water.completed = true;
+                data.xp += 50;
+                showToast('Meta de água! 💧', '+50 XP por hidratação completa');
+                saveData();
+            }
+        }
+
+        function addWater(amount) {
+            data.water.current += amount;
+            saveData();
+            updateWaterDisplay();
+        }
+
+        function resetWater() {
+            if (confirm('Deseja resetar o contador de água?')) {
+                data.water.current = 0;
+                data.water.completed = false;
+                saveData();
+                updateWaterDisplay();
+            }
+        }
+
+        function renderWeekly() {
+            const weekDays = document.getElementById('weekDays');
+            const weekHabits = document.getElementById('weekHabitsList');
+            const today = new Date();
+            
+            let html = '';
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(today);
+                d.setDate(today.getDate() - today.getDay() + i);
+                const isSelected = selectedDate.getDay() === i;
+                
+                html += `
+                    <div class="week-day ${isSelected ? 'active' : ''}" onclick="selectWeekDay(${i})">
+                        <div class="week-day-label">${['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][i]}</div>
+                        <div class="week-day-number">${d.getDate()}</div>
+                        <div class="week-status" style="opacity: ${isDayComplete(d) ? 1 : 0}"></div>
+                    </div>
+                `;
+            }
+            weekDays.innerHTML = html;
+            
+            const selectedDay = selectedDate.getDay();
+            const dateStr = selectedDate.toDateString();
+            const dayHabits = data.habits.filter(h => h.days.includes(selectedDay));
+            
+            weekHabits.innerHTML = dayHabits.map(habit => {
+                const isCompleted = habit.completed[dateStr];
+                return `
+                    <div class="habit-card ${isCompleted ? 'completed' : ''}" onclick="toggleHabitDate(${habit.id}, '${dateStr}')" style="margin-bottom: 8px;">
+                        <div class="habit-icon" style="background: ${habit.color}20; color: ${habit.color}">
+                            ${habit.icon}
+                        </div>
+                        <div class="habit-info">
+                            <div class="habit-title">${habit.name}</div>
+                            <div class="habit-meta">${getTimeLabel(habit.timeOfDay)}</div>
+                        </div>
+                        <div class="habit-actions" onclick="event.stopPropagation()">
+                            <button class="habit-action-btn edit" onclick="editHabit(${habit.id}, event)" title="Editar">✏️</button>
+                            <button class="habit-action-btn delete" onclick="deleteHabitConfirm(${habit.id}, event)" title="Excluir">🗑️</button>
+                        </div>
+                        <div class="habit-check">${isCompleted ? '✓' : ''}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectWeekDay(day) {
+            const d = new Date();
+            d.setDate(d.getDate() - d.getDay() + day);
+            selectedDate = d;
+            renderWeekly();
+        }
+
+        function isDayComplete(date) {
+            const day = date.getDay();
+            const dateStr = date.toDateString();
+            const dayHabits = data.habits.filter(h => h.days.includes(day));
+            if (dayHabits.length === 0) return false;
+            return dayHabits.every(h => h.completed[dateStr]);
+        }
+
+        function toggleHabitDate(id, dateStr) {
+            const habit = data.habits.find(h => h.id === id);
+            if (habit.completed[dateStr]) {
+                delete habit.completed[dateStr];
+            } else {
+                habit.completed[dateStr] = true;
+            }
+            saveData();
+            renderWeekly();
+        }
+
+        function calculateMonthlyCompletion() {
+            const now = new Date();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const currentDay = now.getDate();
+            
+            // Mínimo de 7 dias ou 25% do mês para considerar progresso real
+            const minimumDaysRequired = Math.max(7, Math.ceil(daysInMonth * 0.25));
+            
+            let totalPossible = 0;
+            let totalCompleted = 0;
+            let daysWithHabits = 0;
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), day);
+                const dayOfWeek = d.getDay();
+                const dateStr = d.toDateString();
+                
+                if (d > now) break;
+                
+                const dayHabits = data.habits.filter(h => h.days.includes(dayOfWeek));
+                if (dayHabits.length > 0) daysWithHabits++;
+                totalPossible += dayHabits.length;
+                
+                dayHabits.forEach(h => {
+                    if (h.completed[dateStr]) totalCompleted++;
+                });
+            }
+            
+            // Se não passou dias suficientes, limita a porcentagem máxima proporcionalmente
+            if (daysWithHabits < minimumDaysRequired) {
+                const maxAllowed = (daysWithHabits / minimumDaysRequired) * 100;
+                const rawPercent = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+                return Math.min(rawPercent, maxAllowed);
+            }
+            
+            return totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+        }
+
+        function updateProgress() {
+            const today = new Date().toDateString();
+            const todayHabits = data.habits.filter(h => {
+                return h.days.includes(new Date().getDay()) && 
+                       (h.category !== 'medication' && h.category !== 'supplement');
+            });
+            
+            const completed = todayHabits.filter(h => h.completed[today]).length;
+            const percent = todayHabits.length > 0 ? Math.round((completed / todayHabits.length) * 100) : 0;
+            
+            document.getElementById('dayPercent').textContent = percent + '%';
+            document.getElementById('dayProgress').style.strokeDashoffset = 100 - percent;
+            
+            let streak = 0;
+            for (let i = 0; i < 365; i++) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                if (isDayComplete(d)) {
+                    streak++;
+                } else if (i > 0) {
+                    break;
+                }
+            }
+            document.getElementById('weekStreak').textContent = streak;
+            
+            const monthly = calculateMonthlyCompletion();
+            document.getElementById('monthProgress').textContent = Math.round(monthly) + '%';
+        }
+
+        function checkMissedHabits() {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yestStr = yesterday.toDateString();
+            const yestDay = yesterday.getDay();
+            
+            const missed = data.habits.filter(h => {
+                return h.days.includes(yestDay) && !h.completed[yestStr] && h.category !== 'supplement';
+            });
+            
+            if (missed.length > 0 && !localStorage.getItem('missedNotified')) {
+                showToast('Rotina de Ontem', `Você missed ${missed.length} hábitos ontem. Vamos recuperar hoje! 💪`);
+                localStorage.setItem('missedNotified', 'true');
+            }
+        }
+
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').textContent = title;
+            document.getElementById('toastMessage').textContent = message;
+            
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 4000);
+        }
+
+        function createConfetti(x, y) {
+            const colors = ['var(--primary)', 'var(--success)', 'var(--warning)', 'var(--secondary)'];
+            for (let i = 0; i < 30; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = x + 'px';
+                confetti.style.top = y + 'px';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.transform = `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px)`;
+                document.body.appendChild(confetti);
+                setTimeout(() => confetti.remove(), 3000);
+            }
+        }
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Inicia o app quando DOM estiver pronto
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
