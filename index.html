@@ -2027,7 +2027,8 @@
                     <div class="settings-item-left">
                         <div class="settings-icon">💾</div>
                         <div>
-                            <div class="settings-label">Exportar Backup (JSON)</div>
+                            <div class="settings-label">Exportar Backup</div>
+                            <div class="settings-value">Baixa os dados da nuvem em JSON</div>
                         </div>
                     </div>
                     <span>›</span>
@@ -2036,26 +2037,18 @@
                     <div class="settings-item-left">
                         <div class="settings-icon">📂</div>
                         <div>
-                            <div class="settings-label">Importar Backup (JSON)</div>
-                        </div>
-                    </div>
-                    <span>›</span>
-                </div>
-                <div class="settings-item" onclick="exportToGoogleSheets()">
-                    <div class="settings-item-left">
-                        <div class="settings-icon">📊</div>
-                        <div>
-                            <div class="settings-label">Sincronizar com Google Sheets</div>
-                            <div class="settings-value" id="sheetsStatus">Não configurado</div>
+                            <div class="settings-label">Importar Backup</div>
+                            <div class="settings-value">Restaura JSON para a nuvem</div>
                         </div>
                     </div>
                     <span>›</span>
                 </div>
                 <div class="settings-item" onclick="openSheetsConfigModal()">
                     <div class="settings-item-left">
-                        <div class="settings-icon">⚙️</div>
+                        <div class="settings-icon">☁️</div>
                         <div>
-                            <div class="settings-label">Configurar Google Sheets</div>
+                            <div class="settings-label">Sincronização na Nuvem</div>
+                            <div class="settings-value" id="sheetsStatus">Não configurado</div>
                         </div>
                     </div>
                     <span>›</span>
@@ -2264,15 +2257,20 @@
         <div class="modal-overlay" id="sheetsConfigModal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <span>⚙️ Configurar Google Sheets</span>
+                    <span>☁️ Sincronização na Nuvem</span>
                     <button class="close-btn" onclick="closeSheetsConfigModal()">✕</button>
                 </div>
                 
+                <div id="cloudSyncStatus" style="margin-bottom: 16px; padding: 16px; border-radius: 12px; text-align: center; font-size: 14px;">
+                </div>
+
                 <div style="margin-bottom: 16px; padding: 16px; background: var(--bg); border-radius: 12px; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                    <strong style="color: var(--text);">☁️ Sincronização Automática</strong><br>
+                    Ao configurar, seus dados serão salvos e carregados automaticamente da nuvem.<br><br>
                     <strong style="color: var(--text);">Como configurar:</strong><br>
                     1. Crie uma planilha no Google Sheets<br>
                     2. Vá em <strong>Extensões → Apps Script</strong><br>
-                    3. Cole o código do script (veja instruções abaixo)<br>
+                    3. Cole o código do script (botão abaixo)<br>
                     4. Clique em <strong>Implantar → Nova implantação</strong><br>
                     5. Escolha <strong>App da Web</strong>, acesso: <strong>Qualquer pessoa</strong><br>
                     6. Cole a URL gerada aqui embaixo
@@ -2283,9 +2281,12 @@
                     <input type="url" class="form-input" id="sheetsUrl" placeholder="https://script.google.com/macros/s/.../exec">
                 </div>
 
-                <button class="btn-primary" onclick="saveSheetsConfig()">Salvar Configuração</button>
+                <button class="btn-primary" onclick="saveSheetsConfig()">Salvar e Ativar Sincronização</button>
+                <button class="btn-secondary" onclick="testCloudConnection()">🔍 Testar Conexão</button>
                 <button class="btn-secondary" onclick="copySheetsScript()">📋 Copiar Código do Apps Script</button>
-                <button class="btn-secondary" onclick="closeSheetsConfigModal()">Cancelar</button>
+                <button class="btn-secondary" onclick="forceCloudSync()" id="btnForceSync" style="display:none;">🔄 Forçar Sincronização Agora</button>
+                <button class="btn-secondary" onclick="disableCloudSync()" id="btnDisableSync" style="display:none; color: var(--danger);">❌ Desativar Sincronização</button>
+                <button class="btn-secondary" onclick="closeSheetsConfigModal()">Fechar</button>
             </div>
         </div>
 
@@ -2367,12 +2368,12 @@
         let editingHabitId = null;
 
         // Initialize com tratamento de erro melhorado
-        function init() {
+        async function init() {
+            // 1. Carrega localStorage como cache instantâneo para mostrar tela rápido
             try {
                 const stored = localStorage.getItem('dailyTrackData');
                 if (stored) {
                     data = JSON.parse(stored);
-                    // Verifica se os dados estão corrompidos
                     if (!data || typeof data !== 'object') {
                         throw new Error('Dados inválidos');
                     }
@@ -2385,15 +2386,38 @@
                 localStorage.removeItem('dailyTrackData');
             }
 
-            // Migração: formato antigo de recompensas → formato progressivo por mês/tier
             migrateRewardsData();
             
+            // 2. Mostra o app com cache local (instantâneo)
             if (!data.user) {
                 showAuthScreen();
             } else {
                 showMainApp();
                 applyTheme(data.theme || 'default');
                 updateUserInterface();
+            }
+
+            // 3. Se nuvem está ativa: carrega dados da nuvem (fonte da verdade)
+            if (isCloudSyncActive() && data.user) {
+                loadFromCloud().then(cloudLoaded => {
+                    if (cloudLoaded) {
+                        // Nuvem tinha dados → usa eles
+                        migrateRewardsData();
+                        recalculateAll();
+                        applyTheme(data.theme || 'default');
+                        renderDaily();
+                        renderWeekly();
+                        renderRewards();
+                        renderRewardsManagement();
+                        updateProgress();
+                        updateUserInterface();
+                    } else if (!localStorage.getItem('cloudMigrated')) {
+                        // Nuvem vazia + nunca migrou → migra localStorage p/ nuvem
+                        doCloudSync().then(() => {
+                            localStorage.setItem('cloudMigrated', 'true');
+                        });
+                    }
+                });
             }
         }
 
@@ -2452,6 +2476,7 @@
         function showMainApp() {
             document.getElementById('authScreen').classList.add('hide');
             document.getElementById('mainApp').classList.remove('hide');
+            recalculateAll();
             renderDaily();
             renderWeekly();
             renderRewards();
@@ -2467,6 +2492,46 @@
                 localStorage.removeItem('dailyTrackData');
                 location.reload();
             }
+        }
+
+        function recalculateAll() {
+            if (!data || !data.habits) return;
+
+            let totalXP = 0;
+            const today = new Date();
+
+            data.habits.forEach(habit => {
+                // Recalcular streak: dias consecutivos até hoje (ou ontem)
+                let streak = 0;
+                for (let i = 0; i < 365; i++) {
+                    const d = new Date(today);
+                    d.setDate(today.getDate() - i);
+                    const dateStr = d.toDateString();
+                    const dayOfWeek = d.getDay();
+
+                    // Só conta se o hábito está agendado para esse dia da semana
+                    if (!habit.days.includes(dayOfWeek)) continue;
+
+                    if (habit.completed[dateStr]) {
+                        streak++;
+                    } else {
+                        // Se é hoje e ainda não completou, pula (não quebra streak)
+                        if (i === 0) continue;
+                        break;
+                    }
+                }
+                habit.streak = streak;
+
+                // Somar XP: 25 por cada hábito completado
+                const completedCount = Object.keys(habit.completed).length;
+                totalXP += completedCount * 25;
+            });
+
+            // Recalcular XP e Level
+            data.xp = totalXP;
+            data.level = Math.max(1, Math.floor(totalXP / 500) + 1);
+
+            saveData();
         }
 
         // IMC Functions
@@ -2686,7 +2751,12 @@
             document.body.setAttribute('data-theme', themeName);
         }
 
-        function exportData() {
+        async function exportData() {
+            if (isCloudSyncActive()) {
+                showToast('Baixando...', 'Lendo dados da nuvem ☁️');
+                // Lê da nuvem (fonte da verdade) antes de exportar
+                await loadFromCloud();
+            }
             const dataStr = JSON.stringify(data, null, 2);
             const dataBlob = new Blob([dataStr], {type: 'application/json'});
             const url = URL.createObjectURL(dataBlob);
@@ -2694,7 +2764,7 @@
             link.href = url;
             link.download = `done-backup-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
-            showToast('Dados exportados!', 'Backup JSON salvo com sucesso 💾');
+            showToast('Backup salvo! 💾', 'Arquivo JSON baixado com sucesso');
         }
 
         // === IMPORTAR BACKUP JSON ===
@@ -2707,21 +2777,28 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = async function(e) {
                 try {
                     const imported = JSON.parse(e.target.result);
 
-                    // Validação básica da estrutura
                     if (!imported.habits || !Array.isArray(imported.habits)) {
                         showToast('Erro na importação', 'Arquivo inválido: não contém hábitos');
                         return;
                     }
 
-                    if (confirm('Isso substituirá TODOS os seus dados atuais pelo backup importado. Deseja continuar?')) {
+                    if (confirm('Isso substituirá TODOS os seus dados pelo backup importado. Deseja continuar?')) {
                         data = imported;
-                        saveData();
-                        showToast('Dados importados! ✅', 'Backup restaurado com sucesso');
-                        setTimeout(() => location.reload(), 1000);
+                        // Salva localmente + envia para nuvem
+                        localStorage.setItem('dailyTrackData', JSON.stringify(data));
+                        
+                        if (isCloudSyncActive()) {
+                            showToast('Enviando...', 'Importando backup para a nuvem ☁️');
+                            await doCloudSync();
+                            showToast('Importado! ✅', 'Backup restaurado na nuvem com sucesso');
+                        } else {
+                            showToast('Importado! ✅', 'Backup restaurado com sucesso');
+                        }
+                        setTimeout(() => location.reload(), 1500);
                     }
                 } catch (err) {
                     console.error('Erro ao importar:', err);
@@ -2729,75 +2806,182 @@
                 }
             };
             reader.readAsText(file);
-            // Reset para permitir re-importar o mesmo arquivo
             event.target.value = '';
         }
 
-        // === GOOGLE SHEETS SYNC ===
-        const DEFAULT_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwHhWBRN0HRJ8AuizWKoCEgFYjpqY_9T3jLMB4al0FrC9ghpWue5n2cb0EdlDsWoTiq/exec';
+        // === CLOUD SYNC (GOOGLE SHEETS) ===
+        let cloudSyncBusy = false;
+        let cloudSyncPending = false;
 
         function getGoogleSheetsUrl() {
-            return localStorage.getItem('googleSheetsUrl') || DEFAULT_SHEETS_URL;
+            return localStorage.getItem('googleSheetsUrl') || '';
+        }
+
+        function isCloudSyncActive() {
+            return !!getGoogleSheetsUrl();
         }
 
         function updateSheetsStatus() {
             const statusEl = document.getElementById('sheetsStatus');
             if (statusEl) {
-                statusEl.textContent = getGoogleSheetsUrl() ? 'Configurado ✅' : 'Não configurado';
+                if (isCloudSyncActive()) {
+                    statusEl.textContent = 'Ativo ☁️✅';
+                    statusEl.style.color = '#10b981';
+                } else {
+                    statusEl.textContent = 'Não configurado';
+                    statusEl.style.color = '';
+                }
             }
         }
 
-        function exportToGoogleSheets() {
+        function updateCloudSyncStatusUI() {
+            const el = document.getElementById('cloudSyncStatus');
+            const btnForce = document.getElementById('btnForceSync');
+            const btnDisable = document.getElementById('btnDisableSync');
+            if (!el) return;
+
+            if (isCloudSyncActive()) {
+                el.innerHTML = '<div style="color: #10b981; font-weight: 600;">☁️ Sincronização ATIVA</div><div style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;">Seus dados são salvos e carregados automaticamente</div>';
+                el.style.background = 'rgba(16, 185, 129, 0.1)';
+                if (btnForce) btnForce.style.display = 'block';
+                if (btnDisable) btnDisable.style.display = 'block';
+            } else {
+                el.innerHTML = '<div style="color: var(--text-secondary);">⚪ Sincronização DESATIVADA</div><div style="color: var(--text-secondary); font-size: 12px; margin-top: 4px;">Dados salvos apenas neste navegador</div>';
+                el.style.background = 'var(--bg)';
+                if (btnForce) btnForce.style.display = 'none';
+                if (btnDisable) btnDisable.style.display = 'none';
+            }
+        }
+
+        // CARREGAR dados da nuvem
+        async function loadFromCloud() {
             const url = getGoogleSheetsUrl();
-            if (!url) {
-                showToast('Não configurado', 'Configure a URL do Google Sheets primeiro ⚙️');
-                openSheetsConfigModal();
+            if (!url) return false;
+
+            try {
+                const response = await fetch(url + '?action=load&t=' + Date.now(), {
+                    redirect: 'follow'
+                });
+                const text = await response.text();
+                const result = JSON.parse(text);
+
+                if (result.status === 'ok' && result.data) {
+                    const cloudData = result.data;
+                    if (cloudData.habits && Array.isArray(cloudData.habits)) {
+                        data = cloudData;
+                        localStorage.setItem('dailyTrackData', JSON.stringify(data));
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) {
+                console.error('Erro ao carregar da nuvem:', e);
+                return false;
+            }
+        }
+
+        // SALVAR dados na nuvem (com debounce)
+        let syncTimeout = null;
+        function syncToCloud() {
+            if (!isCloudSyncActive()) return;
+            if (syncTimeout) clearTimeout(syncTimeout);
+            syncTimeout = setTimeout(() => doCloudSync(), 2000);
+        }
+
+        async function doCloudSync() {
+            const url = getGoogleSheetsUrl();
+            if (!url || cloudSyncBusy) {
+                if (cloudSyncBusy) cloudSyncPending = true;
                 return;
             }
 
-            showToast('Enviando...', 'Sincronizando dados com Google Sheets 📊');
+            cloudSyncBusy = true;
+            try {
+                const payload = {
+                    action: 'save',
+                    data: data,
+                    syncDate: new Date().toISOString()
+                };
 
-            // Preparar dados para envio
-            const payload = {
-                user: data.user,
-                habits: data.habits.map(h => ({
-                    id: h.id,
-                    name: h.name,
-                    icon: h.icon,
-                    category: h.category,
-                    timeOfDay: h.timeOfDay,
-                    days: h.days.join(','),
-                    dosage: h.dosage || '',
-                    streak: h.streak,
-                    color: h.color,
-                    completedDates: Object.keys(h.completed).join(' | ')
-                })),
-                water: data.water,
-                rewards: data.rewards,
-                xp: data.xp,
-                level: data.level,
-                theme: data.theme,
-                syncDate: new Date().toISOString()
-            };
+                const body = JSON.stringify(payload);
 
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'text/plain' },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                showToast('Sincronizado! 📊', 'Dados enviados para o Google Sheets');
-            })
-            .catch(err => {
-                console.error('Erro ao sincronizar:', err);
-                showToast('Erro na sincronização', 'Verifique a URL e tente novamente');
-            });
+                // Envia via POST — Google Apps Script processa antes do redirect
+                await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: body,
+                    redirect: 'follow'
+                }).catch(() => {
+                    // Se CORS falhar no redirect, tenta no-cors (fire-and-forget)
+                    return fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: body,
+                        mode: 'no-cors'
+                    });
+                });
+
+                return true;
+            } catch (e) {
+                console.error('Erro ao sincronizar:', e);
+                return false;
+            } finally {
+                cloudSyncBusy = false;
+                if (cloudSyncPending) {
+                    cloudSyncPending = false;
+                    setTimeout(() => doCloudSync(), 500);
+                }
+            }
+        }
+
+        async function forceCloudSync() {
+            showToast('Sincronizando...', 'Enviando dados para a nuvem ☁️');
+            const ok = await doCloudSync();
+            if (ok) {
+                showToast('Sincronizado! ☁️', 'Dados enviados com sucesso');
+            } else {
+                showToast('Erro ❌', 'Não foi possível sincronizar. Verifique a URL.');
+            }
+        }
+
+        async function testCloudConnection() {
+            const url = getGoogleSheetsUrl();
+            if (!url) {
+                showToast('Sem URL', 'Configure a URL primeiro');
+                return false;
+            }
+            showToast('Testando...', 'Verificando conexão com a nuvem ☁️');
+            try {
+                // Testa o GET (doGet)
+                const response = await fetch(url + '?action=test&t=' + Date.now(), {
+                    redirect: 'follow'
+                });
+                const text = await response.text();
+                const result = JSON.parse(text);
+                if (result.status) {
+                    showToast('Conectado! ✅', 'Comunicação com Google Sheets funcionando');
+                    return true;
+                }
+            } catch (e) {
+                console.error('Teste falhou:', e);
+            }
+            showToast('Falha ❌', 'Não foi possível conectar. Verifique se o Apps Script foi implantado corretamente.');
+            return false;
+        }
+
+        function disableCloudSync() {
+            if (confirm('Desativar sincronização na nuvem? Seus dados continuarão salvos localmente neste navegador.')) {
+                localStorage.removeItem('googleSheetsUrl');
+                updateSheetsStatus();
+                updateCloudSyncStatusUI();
+                showToast('Desativado', 'Sincronização na nuvem desativada');
+            }
         }
 
         function openSheetsConfigModal() {
             const currentUrl = getGoogleSheetsUrl();
             document.getElementById('sheetsUrl').value = currentUrl;
+            updateCloudSyncStatusUI();
             document.getElementById('sheetsConfigModal').classList.add('active');
         }
 
@@ -2805,60 +2989,108 @@
             document.getElementById('sheetsConfigModal').classList.remove('active');
         }
 
-        function saveSheetsConfig() {
+        async function saveSheetsConfig() {
             const url = document.getElementById('sheetsUrl').value.trim();
             if (url && !url.startsWith('https://script.google.com/')) {
                 showToast('URL inválida', 'A URL deve começar com https://script.google.com/');
                 return;
             }
-            localStorage.setItem('googleSheetsUrl', url);
-            updateSheetsStatus();
+            if (url) {
+                localStorage.setItem('googleSheetsUrl', url);
+                updateSheetsStatus();
+                updateCloudSyncStatusUI();
+                
+                // Testa conexão
+                const ok = await testCloudConnection();
+                if (ok) {
+                    // Verifica se nuvem já tem dados
+                    const cloudHasData = await loadFromCloud();
+                    if (cloudHasData) {
+                        // Nuvem já tinha dados → usa eles
+                        localStorage.setItem('cloudMigrated', 'true');
+                        showToast('Nuvem conectada! ☁️', 'Dados da nuvem carregados com sucesso');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        // Nuvem vazia → migra dados locais para lá
+                        showToast('Migrando...', 'Enviando seus dados para a nuvem ☁️');
+                        await doCloudSync();
+                        localStorage.setItem('cloudMigrated', 'true');
+                        showToast('Nuvem ativada! ☁️', 'Seus dados foram migrados para a nuvem');
+                    }
+                } else {
+                    showToast('URL salva ⚠️', 'Mas não conseguiu conectar. Verifique o Apps Script.');
+                }
+            } else {
+                localStorage.removeItem('googleSheetsUrl');
+                localStorage.removeItem('cloudMigrated');
+                updateSheetsStatus();
+                updateCloudSyncStatusUI();
+                showToast('Configuração removida', 'Sincronização desativada');
+            }
             closeSheetsConfigModal();
-            showToast('Configuração salva! ⚙️', url ? 'Google Sheets configurado com sucesso' : 'Configuração removida');
         }
 
         function copySheetsScript() {
-            const script = `// Cole este código no Apps Script da sua planilha Google
-// Depois: Implantar → Nova implantação → App da Web → Qualquer pessoa
+            const script = `// ====================================
+// Done - Sincronização na Nuvem
+// ====================================
+// 1. Apague todo o conteúdo deste editor
+// 2. Cole este código inteiro
+// 3. Salve (Ctrl+S)
+// 4. Clique: Implantar → Nova implantação
+// 5. Tipo: App da Web
+// 6. Executar como: Eu mesmo
+// 7. Quem tem acesso: Qualquer pessoa
+// 8. Copie a URL gerada e cole no app Done
+// ====================================
 
 function doPost(e) {
   try {
     var sheet = SpreadsheetApp.getActiveSpreadsheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    // === ABA RESUMO ===
+    var payload = JSON.parse(e.postData.contents);
+    var appData = payload.data;
+
+    // === ABA DoneData (JSON completo para carregar depois) ===
+    var dataSheet = sheet.getSheetByName('DoneData') || sheet.insertSheet('DoneData');
+    dataSheet.clear();
+    dataSheet.getRange('A1').setValue(JSON.stringify(appData));
+    dataSheet.getRange('B1').setValue(payload.syncDate || new Date().toISOString());
+
+    // === ABA Resumo (legível) ===
     var resumo = sheet.getSheetByName('Resumo') || sheet.insertSheet('Resumo');
     resumo.clear();
-    resumo.appendRow(['Done - Sincronização', new Date()]);
+    resumo.appendRow(['📊 Done - Sincronização', new Date().toLocaleString('pt-BR')]);
     resumo.appendRow(['']);
-    resumo.appendRow(['Nome', data.user ? data.user.firstName + ' ' + data.user.lastName : '']);
-    resumo.appendRow(['Nível', data.level]);
-    resumo.appendRow(['XP', data.xp]);
-    resumo.appendRow(['Tema', data.theme]);
-    resumo.appendRow(['Água Hoje', data.water ? data.water.current + '/' + data.water.goal + 'ml' : '']);
-    
-    // === ABA HÁBITOS ===
+    if (appData.user) {
+      resumo.appendRow(['👤 Nome', appData.user.firstName + ' ' + (appData.user.lastName || '')]);
+      resumo.appendRow(['📏 Altura', appData.user.height + ' cm']);
+      resumo.appendRow(['⚖️ Peso', appData.user.weight + ' kg']);
+      resumo.appendRow(['📐 IMC', appData.user.imc + ' (' + appData.user.imcStatus + ')']);
+    }
+    resumo.appendRow(['🏆 Nível', appData.level]);
+    resumo.appendRow(['⭐ XP', appData.xp]);
+    resumo.appendRow(['💧 Água', appData.water ? appData.water.current + '/' + appData.water.goal + 'ml' : '-']);
+    resumo.appendRow(['🎨 Tema', appData.theme]);
+
+    // === ABA Hábitos (legível) ===
     var habitos = sheet.getSheetByName('Hábitos') || sheet.insertSheet('Hábitos');
     habitos.clear();
-    habitos.appendRow(['ID', 'Nome', 'Ícone', 'Categoria', 'Período', 'Dias', 'Dosagem', 'Streak', 'Datas Completadas']);
-    
-    if (data.habits) {
-      data.habits.forEach(function(h) {
-        habitos.appendRow([h.id, h.name, h.icon, h.category, h.timeOfDay, h.days, h.dosage, h.streak, h.completedDates]);
+    habitos.appendRow(['Nome', 'Categoria', 'Período', 'Dosagem', 'Streak', 'Total Feitos', 'Últimas Datas']);
+    if (appData.habits) {
+      appData.habits.forEach(function(h) {
+        var dates = Object.keys(h.completed || {});
+        habitos.appendRow([
+          h.icon + ' ' + h.name,
+          h.category,
+          h.timeOfDay,
+          h.dosage || '-',
+          h.streak,
+          dates.length,
+          dates.slice(-7).join(', ')
+        ]);
       });
     }
-    
-    // === ABA RECOMPENSAS ===
-    var recompensas = sheet.getSheetByName('Recompensas') || sheet.insertSheet('Recompensas');
-    recompensas.clear();
-    recompensas.appendRow(['ID', 'Nome', 'Ícone', 'Descrição', 'Requerido %', 'Desbloqueado']);
-    
-    if (data.rewards) {
-      data.rewards.forEach(function(r) {
-        recompensas.appendRow([r.id, r.name, r.icon, r.description, r.required, r.unlocked ? 'Sim' : 'Não']);
-      });
-    }
-    
+
     return ContentService.createTextOutput(JSON.stringify({status: 'ok'}))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
@@ -2868,14 +3100,38 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  return ContentService.createTextOutput('Done API ativa!')
-    .setMimeType(ContentService.MimeType.TEXT);
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet();
+    var dataSheet = sheet.getSheetByName('DoneData');
+
+    if (!dataSheet) {
+      return ContentService.createTextOutput(JSON.stringify({status: 'empty', message: 'Nenhum dado salvo ainda'}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var jsonStr = dataSheet.getRange('A1').getValue();
+    if (!jsonStr) {
+      return ContentService.createTextOutput(JSON.stringify({status: 'empty'}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    var savedData = JSON.parse(jsonStr);
+    var syncDate = dataSheet.getRange('B1').getValue();
+
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'ok',
+      data: savedData,
+      syncDate: syncDate
+    })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({status: 'error', message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
 }`;
 
             navigator.clipboard.writeText(script).then(() => {
                 showToast('Código copiado! 📋', 'Cole no Apps Script da sua planilha');
             }).catch(() => {
-                // Fallback para navegadores sem clipboard API
                 const ta = document.createElement('textarea');
                 ta.value = script;
                 document.body.appendChild(ta);
@@ -2902,12 +3158,14 @@ function doGet(e) {
         }
 
         function saveData() {
+            // Cache local (instantâneo, funciona offline)
             try {
                 localStorage.setItem('dailyTrackData', JSON.stringify(data));
             } catch (e) {
-                console.error('Erro ao salvar:', e);
-                showToast('Erro', 'Não foi possível salvar os dados');
+                console.error('Erro ao salvar cache local:', e);
             }
+            // Grava na nuvem (fonte da verdade)
+            syncToCloud();
         }
 
         function setScreen(screen) {
@@ -3787,14 +4045,9 @@ function doGet(e) {
         function calculateMonthlyCompletion() {
             const now = new Date();
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const currentDay = now.getDate();
-            
-            // Mínimo de 7 dias ou 25% do mês para considerar progresso real
-            const minimumDaysRequired = Math.max(7, Math.ceil(daysInMonth * 0.25));
             
             let totalPossible = 0;
             let totalCompleted = 0;
-            let daysWithHabits = 0;
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
@@ -3804,19 +4057,11 @@ function doGet(e) {
                 if (d > now) break;
                 
                 const dayHabits = data.habits.filter(h => h.days.includes(dayOfWeek));
-                if (dayHabits.length > 0) daysWithHabits++;
                 totalPossible += dayHabits.length;
                 
                 dayHabits.forEach(h => {
                     if (h.completed[dateStr]) totalCompleted++;
                 });
-            }
-            
-            // Se não passou dias suficientes, limita a porcentagem máxima proporcionalmente
-            if (daysWithHabits < minimumDaysRequired) {
-                const maxAllowed = (daysWithHabits / minimumDaysRequired) * 100;
-                const rawPercent = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
-                return Math.min(rawPercent, maxAllowed);
             }
             
             return totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
@@ -3825,8 +4070,7 @@ function doGet(e) {
         function updateProgress() {
             const today = new Date().toDateString();
             const todayHabits = data.habits.filter(h => {
-                return h.days.includes(new Date().getDay()) && 
-                       (h.category !== 'medication' && h.category !== 'supplement');
+                return h.days.includes(new Date().getDay());
             });
             
             const completed = todayHabits.filter(h => h.completed[today]).length;
