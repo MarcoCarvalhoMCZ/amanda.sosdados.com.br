@@ -828,6 +828,119 @@
             color: var(--primary);
         }
 
+        .month-overview {
+            background: var(--surface);
+            margin: 0 20px 20px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .month-overview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .month-overview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .month-overview-percent {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .month-bar-bg {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .month-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark, var(--primary)));
+        }
+
+        .month-categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .month-kpi-hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            border-radius: 14px;
+            margin-bottom: 14px;
+        }
+
+        .month-kpi-pct {
+            font-size: 40px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .month-kpi-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .month-kpi-tasks {
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.95);
+        }
+
+        .month-kpi-label {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .month-cat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .month-cat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .month-cat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .month-cat-name {
+            font-size: 11px;
+            color: var(--text-secondary);
+            line-height: 1.2;
+        }
+
+        .month-cat-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
         .nav-container {
             position: fixed;
             bottom: 0;
@@ -888,6 +1001,15 @@
 
         .add-btn-main:active {
             transform: scale(0.95);
+        }
+
+        @keyframes pulseAdd {
+            0%, 100% { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+            50% { box-shadow: 0 4px 25px rgba(99, 102, 241, 0.7); }
+        }
+
+        .add-btn-main {
+            animation: pulseAdd 2s ease-in-out infinite;
         }
 
         .screen {
@@ -1869,6 +1991,25 @@
                 <div class="stat-value" id="monthProgress">0%</div>
                 <div class="stat-label">Mês</div>
             </div>
+        </div>
+
+        <!-- Monthly Overview -->
+        <div class="month-overview" id="monthOverview">
+            <div class="month-overview-header">
+                <div class="month-overview-title">📊 Resumo do Mês</div>
+                <div class="month-overview-percent" id="monthOverallPercent">0%</div>
+            </div>
+            <div class="month-kpi-hero">
+                <div class="month-kpi-pct" id="monthTotalPct">0%</div>
+                <div class="month-kpi-details">
+                    <div class="month-kpi-tasks" id="monthTotalTasks">0/0 tarefas</div>
+                    <div class="month-kpi-label">concluídas no mês</div>
+                </div>
+            </div>
+            <div class="month-bar-bg">
+                <div class="month-bar-fill" id="monthBarFill" style="width: 0%"></div>
+            </div>
+            <div class="month-categories" id="monthCategories"></div>
         </div>
 
         <!-- Screens -->
@@ -4093,6 +4234,80 @@ function doGet(e) {
             
             const monthly = calculateMonthlyCompletion();
             document.getElementById('monthProgress').textContent = Math.round(monthly) + '%';
+
+            updateMonthOverview();
+        }
+
+        function updateMonthOverview() {
+            const now = new Date();
+            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const categories = {
+                habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
+                medication: { name: 'Medicamentos', color: '#3b82f6', possible: 0, completed: 0 },
+                supplement: { name: 'Suplementos', color: '#8b5cf6', possible: 0, completed: 0 },
+                exercise: { name: 'Exercícios', color: '#10b981', possible: 0, completed: 0 }
+            };
+
+            let totalPossible = 0;
+            let totalCompleted = 0;
+            let monthTotalTasks = 0;
+
+            // Calcula tarefas já feitas (dias passados)
+            for (let day = 1; day <= now.getDate(); day++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), day);
+                const dayOfWeek = d.getDay();
+                const dateStr = d.toDateString();
+
+                if (d > now) break;
+
+                data.habits.forEach(h => {
+                    if (!h.days.includes(dayOfWeek)) return;
+                    const cat = categories[h.category] || categories.habit;
+                    cat.possible++;
+                    totalPossible++;
+                    if (h.completed[dateStr]) {
+                        cat.completed++;
+                        totalCompleted++;
+                    }
+                });
+            }
+
+            // Calcula total de tarefas do mês inteiro (todos os dias)
+            for (let day = 1; day <= daysInMonth; day++) {
+                const d = new Date(now.getFullYear(), now.getMonth(), day);
+                const dayOfWeek = d.getDay();
+                data.habits.forEach(h => {
+                    if (h.days.includes(dayOfWeek)) monthTotalTasks++;
+                });
+            }
+
+            const overallPercent = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+            document.getElementById('monthOverallPercent').textContent = overallPercent + '%';
+            document.getElementById('monthBarFill').style.width = overallPercent + '%';
+
+            // KPI total do mês
+            const monthPct = monthTotalTasks > 0 ? Math.round((totalCompleted / monthTotalTasks) * 100) : 0;
+            document.getElementById('monthTotalTasks').textContent = `${totalCompleted}/${monthTotalTasks} tarefas`;
+            document.getElementById('monthTotalPct').textContent = monthPct + '%';
+
+            const container = document.getElementById('monthCategories');
+            let html = '';
+
+            Object.entries(categories).forEach(([key, cat]) => {
+                if (cat.possible === 0) return;
+                const pct = Math.round((cat.completed / cat.possible) * 100);
+                html += `
+                    <div class="month-cat-item">
+                        <div class="month-cat-dot" style="background: ${cat.color}"></div>
+                        <div class="month-cat-info">
+                            <div class="month-cat-name">${cat.name}</div>
+                            <div class="month-cat-value">${pct}% <span style="font-weight:400; font-size:11px; color:var(--text-secondary)">${cat.completed}/${cat.possible}</span></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         function checkMissedHabits() {
