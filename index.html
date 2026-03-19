@@ -2246,12 +2246,12 @@
                 
                 <div class="form-group">
                     <label class="form-label">Nome</label>
-                    <input type="text" class="form-input" id="habitName" placeholder="Ex: Meditar">
+                    <input type="text" class="form-input" id="habitName" placeholder="Ex: Meditar" maxlength="50" required>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Ícone</label>
-                    <input type="text" class="form-input" id="habitIcon" placeholder="Ex: 🧘" maxlength="2" value="⭐">
+                    <input type="text" class="form-input" id="habitIcon" placeholder="Ex: 🧘" maxlength="4" value="⭐">
                 </div>
 
                 <div class="form-group">
@@ -2297,7 +2297,7 @@
 
                 <div class="form-group" id="dosageGroup" style="display: none;">
                     <label class="form-label">Dosagem/Detalhes</label>
-                    <input type="text" class="form-input" id="habitDosage" placeholder="Ex: 20mg após café">
+                    <input type="text" class="form-input" id="habitDosage" placeholder="Ex: 20mg após café" maxlength="100">
                 </div>
 
                 <button class="btn-primary" onclick="saveHabit()" id="saveHabitBtn">Criar Hábito</button>
@@ -3009,6 +3009,16 @@
                 if (result.status === 'ok' && result.data) {
                     const cloudData = result.data;
                     if (cloudData.habits && Array.isArray(cloudData.habits)) {
+                        // Merge: compara timestamps — dados mais recentes vencem
+                        const localTime = data.lastModified ? new Date(data.lastModified).getTime() : 0;
+                        const cloudTime = cloudData.lastModified ? new Date(cloudData.lastModified).getTime() : 0;
+
+                        if (localTime > cloudTime) {
+                            // Local é mais recente (editado offline) → envia local para nuvem
+                            doCloudSync();
+                            return false;
+                        }
+
                         data = cloudData;
                         localStorage.setItem('dailyTrackData', JSON.stringify(data));
                         return true;
@@ -3299,6 +3309,8 @@ function doGet(e) {
         }
 
         function saveData() {
+            // Timestamp para merge cloud/local
+            data.lastModified = new Date().toISOString();
             // Cache local (instantâneo, funciona offline)
             try {
                 localStorage.setItem('dailyTrackData', JSON.stringify(data));
@@ -3519,10 +3531,10 @@ function doGet(e) {
         }
 
         function saveHabit() {
-            const name = document.getElementById('habitName').value;
-            const icon = document.getElementById('habitIcon').value || '⭐';
+            const name = document.getElementById('habitName').value.trim();
+            const icon = document.getElementById('habitIcon').value.trim() || '⭐';
             const category = document.getElementById('habitCategory').value;
-            const dosage = document.getElementById('habitDosage').value;
+            const dosage = document.getElementById('habitDosage').value.trim();
             
             if (!name) {
                 alert('Digite um nome para o hábito');
@@ -3565,7 +3577,8 @@ function doGet(e) {
                     dosage,
                     streak: 0,
                     color: colors[category] || 'var(--primary)',
-                    completed: {}
+                    completed: {},
+                    createdAt: new Date().toISOString()
                 };
                 data.habits.push(newHabit);
                 showToast('Hábito Criado!', `${name} foi adicionado à sua rotina`);
@@ -3953,6 +3966,14 @@ function doGet(e) {
         function renderDaily() {
             const today = new Date().getDay();
             const dateStr = new Date().toDateString();
+
+            // Reset diário da água
+            if (data.water.date !== dateStr) {
+                data.water.current = 0;
+                data.water.completed = false;
+                data.water.date = dateStr;
+                saveData();
+            }
             
             const groups = { morning: [], afternoon: [], evening: [], night: [] };
             const meds = [];
@@ -4183,11 +4204,20 @@ function doGet(e) {
             renderWeekly();
         }
 
+        function getHabitCreationDate(habit) {
+            if (habit.createdAt) return new Date(habit.createdAt);
+            // Hábitos antigos: id é Date.now() da criação (timestamp grande)
+            // Hábitos default: id pequeno (1-7), usa joinDate ou início do mês
+            if (habit.id > 1000000000000) return new Date(habit.id);
+            if (data.joinDate) return new Date(data.joinDate);
+            return new Date(0); // sem limite
+        }
+
         function calculateMonthlyCompletion() {
             const now = new Date();
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             
-            let totalPossible = 0;
+            let totalPossibleFullMonth = 0;
             let totalCompleted = 0;
             
             for (let day = 1; day <= daysInMonth; day++) {
@@ -4195,17 +4225,23 @@ function doGet(e) {
                 const dayOfWeek = d.getDay();
                 const dateStr = d.toDateString();
                 
-                if (d > now) break;
-                
-                const dayHabits = data.habits.filter(h => h.days.includes(dayOfWeek));
-                totalPossible += dayHabits.length;
-                
-                dayHabits.forEach(h => {
-                    if (h.completed[dateStr]) totalCompleted++;
+                // Só conta hábitos que já existiam nesse dia
+                const dayHabits = data.habits.filter(h => {
+                    if (!h.days.includes(dayOfWeek)) return false;
+                    const created = getHabitCreationDate(h);
+                    return d >= new Date(created.getFullYear(), created.getMonth(), created.getDate());
                 });
+                totalPossibleFullMonth += dayHabits.length;
+                
+                // Só conta completados até hoje
+                if (d <= now) {
+                    dayHabits.forEach(h => {
+                        if (h.completed[dateStr]) totalCompleted++;
+                    });
+                }
             }
             
-            return totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+            return totalPossibleFullMonth > 0 ? (totalCompleted / totalPossibleFullMonth) * 100 : 0;
         }
 
         function updateProgress() {
@@ -4262,6 +4298,9 @@ function doGet(e) {
 
                 data.habits.forEach(h => {
                     if (!h.days.includes(dayOfWeek)) return;
+                    // Só conta se o hábito já existia nesse dia
+                    const created = getHabitCreationDate(h);
+                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
                     const cat = categories[h.category] || categories.habit;
                     cat.possible++;
                     totalPossible++;
@@ -4277,7 +4316,10 @@ function doGet(e) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
                 const dayOfWeek = d.getDay();
                 data.habits.forEach(h => {
-                    if (h.days.includes(dayOfWeek)) monthTotalTasks++;
+                    if (!h.days.includes(dayOfWeek)) return;
+                    const created = getHabitCreationDate(h);
+                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
+                    monthTotalTasks++;
                 });
             }
 
