@@ -4276,7 +4276,6 @@ function doGet(e) {
 
         function updateMonthOverview() {
             const now = new Date();
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             const categories = {
                 habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
                 medication: { name: 'Medicamentos', color: '#3b82f6', possible: 0, completed: 0 },
@@ -4286,9 +4285,8 @@ function doGet(e) {
 
             let totalPossible = 0;
             let totalCompleted = 0;
-            let monthTotalTasks = 0;
 
-            // Calcula tarefas já feitas (dias passados)
+            // Calcula tarefas dos dias já passados (até hoje)
             for (let day = 1; day <= now.getDate(); day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
                 const dayOfWeek = d.getDay();
@@ -4311,26 +4309,13 @@ function doGet(e) {
                 });
             }
 
-            // Calcula total de tarefas do mês inteiro (todos os dias)
-            for (let day = 1; day <= daysInMonth; day++) {
-                const d = new Date(now.getFullYear(), now.getMonth(), day);
-                const dayOfWeek = d.getDay();
-                data.habits.forEach(h => {
-                    if (!h.days.includes(dayOfWeek)) return;
-                    const created = getHabitCreationDate(h);
-                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
-                    monthTotalTasks++;
-                });
-            }
-
             const overallPercent = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
             document.getElementById('monthOverallPercent').textContent = overallPercent + '%';
             document.getElementById('monthBarFill').style.width = overallPercent + '%';
 
-            // KPI total do mês
-            const monthPct = monthTotalTasks > 0 ? Math.round((totalCompleted / monthTotalTasks) * 100) : 0;
-            document.getElementById('monthTotalTasks').textContent = `${totalCompleted}/${monthTotalTasks} tarefas`;
-            document.getElementById('monthTotalPct').textContent = monthPct + '%';
+            // KPI total do mês (baseado nos dias já passados)
+            document.getElementById('monthTotalTasks').textContent = `${totalCompleted}/${totalPossible} tarefas`;
+            document.getElementById('monthTotalPct').textContent = overallPercent + '%';
 
             const container = document.getElementById('monthCategories');
             let html = '';
