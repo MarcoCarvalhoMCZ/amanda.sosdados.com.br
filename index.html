@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Done - Rotinas Saudáveis</title>
     <style>
         :root {
@@ -4213,34 +4216,45 @@ function doGet(e) {
             return new Date(0); // sem limite
         }
 
-        function calculateMonthlyCompletion() {
+        // Cálculo centralizado: fonte única de verdade para o mês
+        function calculateMonthlyStats() {
             const now = new Date();
-            
+            const categories = {
+                habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
+                medication: { name: 'Medicamentos', color: '#3b82f6', possible: 0, completed: 0 },
+                supplement: { name: 'Suplementos', color: '#8b5cf6', possible: 0, completed: 0 },
+                exercise: { name: 'Exercícios', color: '#10b981', possible: 0, completed: 0 }
+            };
             let totalPossible = 0;
             let totalCompleted = 0;
-            
+
             // Progressivo: conta apenas dias já passados (até hoje)
             for (let day = 1; day <= now.getDate(); day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
                 const dayOfWeek = d.getDay();
                 const dateStr = d.toDateString();
-                
                 if (d > now) break;
-                
-                // Só conta hábitos que já existiam nesse dia
-                const dayHabits = data.habits.filter(h => {
-                    if (!h.days.includes(dayOfWeek)) return false;
+
+                data.habits.forEach(h => {
+                    if (!h.days.includes(dayOfWeek)) return;
                     const created = getHabitCreationDate(h);
-                    return d >= new Date(created.getFullYear(), created.getMonth(), created.getDate());
-                });
-                totalPossible += dayHabits.length;
-                
-                dayHabits.forEach(h => {
-                    if (h.completed[dateStr]) totalCompleted++;
+                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
+                    const cat = categories[h.category] || categories.habit;
+                    cat.possible++;
+                    totalPossible++;
+                    if (h.completed[dateStr]) {
+                        cat.completed++;
+                        totalCompleted++;
+                    }
                 });
             }
-            
-            return totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+
+            const percent = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
+            return { totalPossible, totalCompleted, percent, categories };
+        }
+
+        function calculateMonthlyCompletion() {
+            return calculateMonthlyStats().percent;
         }
 
         function updateProgress() {
@@ -4267,52 +4281,21 @@ function doGet(e) {
             }
             document.getElementById('weekStreak').textContent = streak;
             
-            const monthly = calculateMonthlyCompletion();
-            document.getElementById('monthProgress').textContent = Math.round(monthly) + '%';
+            // Usa cálculo centralizado para header e resumo
+            const monthlyStats = calculateMonthlyStats();
+            document.getElementById('monthProgress').textContent = Math.round(monthlyStats.percent) + '%';
 
-            updateMonthOverview();
+            updateMonthOverview(monthlyStats);
         }
 
-        function updateMonthOverview() {
-            const now = new Date();
-            const categories = {
-                habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
-                medication: { name: 'Medicamentos', color: '#3b82f6', possible: 0, completed: 0 },
-                supplement: { name: 'Suplementos', color: '#8b5cf6', possible: 0, completed: 0 },
-                exercise: { name: 'Exercícios', color: '#10b981', possible: 0, completed: 0 }
-            };
+        function updateMonthOverview(stats) {
+            // Reutiliza stats do calculateMonthlyStats() — fonte única de verdade
+            const { totalPossible, totalCompleted, percent, categories } = stats;
+            const overallPercent = Math.round(percent);
 
-            let totalPossible = 0;
-            let totalCompleted = 0;
-
-            // Calcula tarefas dos dias já passados (até hoje)
-            for (let day = 1; day <= now.getDate(); day++) {
-                const d = new Date(now.getFullYear(), now.getMonth(), day);
-                const dayOfWeek = d.getDay();
-                const dateStr = d.toDateString();
-
-                if (d > now) break;
-
-                data.habits.forEach(h => {
-                    if (!h.days.includes(dayOfWeek)) return;
-                    // Só conta se o hábito já existia nesse dia
-                    const created = getHabitCreationDate(h);
-                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
-                    const cat = categories[h.category] || categories.habit;
-                    cat.possible++;
-                    totalPossible++;
-                    if (h.completed[dateStr]) {
-                        cat.completed++;
-                        totalCompleted++;
-                    }
-                });
-            }
-
-            const overallPercent = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
             document.getElementById('monthOverallPercent').textContent = overallPercent + '%';
             document.getElementById('monthBarFill').style.width = overallPercent + '%';
 
-            // KPI total do mês (baseado nos dias já passados)
             document.getElementById('monthTotalTasks').textContent = `${totalCompleted}/${totalPossible} tarefas`;
             document.getElementById('monthTotalPct').textContent = overallPercent + '%';
 
