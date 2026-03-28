@@ -2197,6 +2197,15 @@
                     </div>
                     <span>›</span>
                 </div>
+                <div class="settings-item" onclick="diagnosticoMensal()">
+                    <div class="settings-item-left">
+                        <div class="settings-icon">📊</div>
+                        <div>
+                            <div class="settings-label">Diagnóstico Mensal</div>
+                        </div>
+                    </div>
+                    <span>›</span>
+                </div>
                 <div class="settings-item" onclick="resetData()">
                     <div class="settings-item-left">
                         <div class="settings-icon">🔄</div>
@@ -2511,6 +2520,23 @@
         let editingRewardId = null;
         let editingHabitId = null;
 
+        // Sanitiza hábitos: remove duplicatas por ID e limpa array de dias
+        function sanitizeHabits() {
+            if (!data || !Array.isArray(data.habits)) return;
+            const seen = new Set();
+            const original = data.habits.length;
+            data.habits = data.habits.filter(h => {
+                if (seen.has(h.id)) return false;
+                seen.add(h.id);
+                // Deduplica dias
+                h.days = [...new Set(h.days)];
+                return true;
+            });
+            if (data.habits.length < original) {
+                saveData();
+            }
+        }
+
         // Initialize com tratamento de erro melhorado
         async function init() {
             // 1. Carrega localStorage como cache instantâneo para mostrar tela rápido
@@ -2531,6 +2557,7 @@
             }
 
             migrateRewardsData();
+            sanitizeHabits();
             
             // 2. Mostra o app com cache local (instantâneo)
             if (!data.user) {
@@ -3023,6 +3050,7 @@
                         }
 
                         data = cloudData;
+                        sanitizeHabits();
                         localStorage.setItem('dailyTrackData', JSON.stringify(data));
                         return true;
                     }
@@ -4236,7 +4264,9 @@ function doGet(e) {
                 if (d > now) break;
 
                 data.habits.forEach(h => {
-                    if (!h.days.includes(dayOfWeek)) return;
+                    // Usa Set para garantir que dias duplicados não inflem a contagem
+                    const uniqueDays = new Set(h.days);
+                    if (!uniqueDays.has(dayOfWeek)) return;
                     const created = getHabitCreationDate(h);
                     if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
                     const cat = categories[h.category] || categories.habit;
@@ -4317,6 +4347,38 @@ function doGet(e) {
             });
 
             container.innerHTML = html;
+        }
+
+        // Diagnóstico mensal — exibe detalhamento de cada hábito no mês
+        function diagnosticoMensal() {
+            const now = new Date();
+            let report = `📊 DIAGNÓSTICO — ${now.toLocaleDateString('pt-BR')}\n`;
+            report += `Total hábitos: ${data.habits.length}\n`;
+            report += `IDs: ${data.habits.map(h => h.id).join(', ')}\n\n`;
+
+            // Detecta IDs duplicados
+            const ids = data.habits.map(h => h.id);
+            const dupIds = ids.filter((id, i) => ids.indexOf(id) !== i);
+            if (dupIds.length) report += `⚠️ IDs DUPLICADOS: ${dupIds.join(', ')}\n\n`;
+
+            let grandTotal = 0;
+            data.habits.forEach(h => {
+                const created = getHabitCreationDate(h);
+                let possible = 0;
+                for (let day = 1; day <= now.getDate(); day++) {
+                    const d = new Date(now.getFullYear(), now.getMonth(), day);
+                    if (d > now) break;
+                    if (!h.days.includes(d.getDay())) continue;
+                    if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) continue;
+                    possible++;
+                }
+                grandTotal += possible;
+                report += `${h.icon} ${h.name} [${h.category}]\n`;
+                report += `  ID: ${h.id} | Dias: [${h.days}] | Criado: ${created.toLocaleDateString('pt-BR')}\n`;
+                report += `  Tarefas mês: ${possible} | createdAt: ${h.createdAt || 'N/A'}\n\n`;
+            });
+            report += `\n🏁 TOTAL CALCULADO: ${grandTotal} tarefas`;
+            alert(report);
         }
 
         function checkMissedHabits() {
