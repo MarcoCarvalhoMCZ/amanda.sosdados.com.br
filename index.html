@@ -1985,6 +1985,7 @@
                     <div class="progress-text" id="dayPercent">0%</div>
                 </div>
                 <div class="stat-label">Hoje</div>
+                <div class="stat-remaining" id="dayRemaining" style="font-size:11px;color:var(--text-secondary);margin-top:2px;"></div>
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="weekStreak">0</div>
@@ -1993,6 +1994,7 @@
             <div class="stat-item">
                 <div class="stat-value" id="monthProgress">0%</div>
                 <div class="stat-label">Mês</div>
+                <div class="stat-remaining" id="monthRemaining" style="font-size:11px;color:var(--text-secondary);margin-top:2px;"></div>
             </div>
         </div>
 
@@ -2007,6 +2009,7 @@
                 <div class="month-kpi-details">
                     <div class="month-kpi-tasks" id="monthTotalTasks">0/0 tarefas</div>
                     <div class="month-kpi-label">concluídas no mês</div>
+                    <div class="month-kpi-remaining" id="monthTotalRemaining" style="font-size:12px;margin-top:4px;opacity:0.85;"></div>
                 </div>
             </div>
             <div class="month-bar-bg">
@@ -2048,6 +2051,7 @@
                 <div style="font-weight: 700; margin-bottom: 8px;">Semana Atual</div>
                 <div class="week-days" id="weekDays"></div>
             </div>
+            <div id="weekDaySummary" style="padding:8px 16px;font-size:13px;color:var(--text-secondary);font-weight:600;"></div>
             <div id="weekHabitsList"></div>
         </div>
 
@@ -4187,6 +4191,15 @@ function doGet(e) {
             const selectedDay = selectedDate.getDay();
             const dateStr = selectedDate.toDateString();
             const dayHabits = data.habits.filter(h => h.days.includes(selectedDay));
+            const weekCompleted = dayHabits.filter(h => h.completed[dateStr]).length;
+            const weekRemaining = dayHabits.length - weekCompleted;
+            
+            const summaryEl = document.getElementById('weekDaySummary');
+            if (dayHabits.length > 0) {
+                summaryEl.textContent = `✅ ${weekCompleted}/${dayHabits.length} concluídas • ${weekRemaining > 0 ? `Faltam ${weekRemaining}` : 'Dia completo! 🌟'}`;
+            } else {
+                summaryEl.textContent = 'Nenhuma tarefa neste dia';
+            }
             
             weekHabits.innerHTML = dayHabits.map(habit => {
                 const isCompleted = habit.completed[dateStr];
@@ -4295,10 +4308,12 @@ function doGet(e) {
             });
             
             const completed = todayHabits.filter(h => h.completed[today]).length;
+            const remaining = todayHabits.length - completed;
             const percent = todayHabits.length > 0 ? Math.round((completed / todayHabits.length) * 100) : 0;
             
             document.getElementById('dayPercent').textContent = percent + '%';
             document.getElementById('dayProgress').style.strokeDashoffset = 100 - percent;
+            document.getElementById('dayRemaining').textContent = remaining > 0 ? `Faltam ${remaining}` : 'Completo ✅';
             
             let streak = 0;
             for (let i = 0; i < 365; i++) {
@@ -4314,7 +4329,9 @@ function doGet(e) {
             
             // Usa cálculo centralizado para header e resumo
             const monthlyStats = calculateMonthlyStats();
+            const monthRemaining = monthlyStats.totalPossible - monthlyStats.totalCompleted;
             document.getElementById('monthProgress').textContent = Math.round(monthlyStats.percent) + '%';
+            document.getElementById('monthRemaining').textContent = monthRemaining > 0 ? `Faltam ${monthRemaining}` : 'Completo ✅';
 
             updateMonthOverview(monthlyStats);
         }
@@ -4329,6 +4346,8 @@ function doGet(e) {
 
             document.getElementById('monthTotalTasks').textContent = `${totalCompleted}/${totalPossible} tarefas`;
             document.getElementById('monthTotalPct').textContent = overallPercent + '%';
+            const monthTotalRemaining = totalPossible - totalCompleted;
+            document.getElementById('monthTotalRemaining').textContent = monthTotalRemaining > 0 ? `⏳ Faltam ${monthTotalRemaining} tarefas` : 'Mês completo! 🌟';
 
             const container = document.getElementById('monthCategories');
             let html = '';
