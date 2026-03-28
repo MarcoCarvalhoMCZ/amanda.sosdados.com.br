@@ -4215,15 +4215,17 @@ function doGet(e) {
 
         function calculateMonthlyCompletion() {
             const now = new Date();
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             
-            let totalPossibleFullMonth = 0;
+            let totalPossible = 0;
             let totalCompleted = 0;
             
-            for (let day = 1; day <= daysInMonth; day++) {
+            // Progressivo: conta apenas dias já passados (até hoje)
+            for (let day = 1; day <= now.getDate(); day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
                 const dayOfWeek = d.getDay();
                 const dateStr = d.toDateString();
+                
+                if (d > now) break;
                 
                 // Só conta hábitos que já existiam nesse dia
                 const dayHabits = data.habits.filter(h => {
@@ -4231,17 +4233,14 @@ function doGet(e) {
                     const created = getHabitCreationDate(h);
                     return d >= new Date(created.getFullYear(), created.getMonth(), created.getDate());
                 });
-                totalPossibleFullMonth += dayHabits.length;
+                totalPossible += dayHabits.length;
                 
-                // Só conta completados até hoje
-                if (d <= now) {
-                    dayHabits.forEach(h => {
-                        if (h.completed[dateStr]) totalCompleted++;
-                    });
-                }
+                dayHabits.forEach(h => {
+                    if (h.completed[dateStr]) totalCompleted++;
+                });
             }
             
-            return totalPossibleFullMonth > 0 ? (totalCompleted / totalPossibleFullMonth) * 100 : 0;
+            return totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
         }
 
         function updateProgress() {
