@@ -4378,7 +4378,30 @@ function doGet(e) {
                 report += `  Tarefas mês: ${possible} | createdAt: ${h.createdAt || 'N/A'}\n\n`;
             });
             report += `\n🏁 TOTAL CALCULADO: ${grandTotal} tarefas`;
-            alert(report);
+
+            // Modal scrollável com botão copiar
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+            overlay.innerHTML = `
+                <div style="background:var(--surface);border-radius:16px;max-height:80vh;width:100%;max-width:500px;display:flex;flex-direction:column;overflow:hidden;">
+                    <div style="padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);">
+                        <strong>📊 Diagnóstico Mensal</strong>
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;">✕</button>
+                    </div>
+                    <pre id="diagReport" style="padding:16px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;font-size:12px;margin:0;flex:1;">${report}</pre>
+                    <div style="padding:12px;border-top:1px solid var(--border);display:flex;gap:8px;">
+                        <button id="diagCopyBtn" style="flex:1;padding:12px;border-radius:10px;border:none;background:var(--primary);color:white;font-weight:600;cursor:pointer;">📋 Copiar Tudo</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+            document.getElementById('diagCopyBtn').addEventListener('click', () => {
+                navigator.clipboard.writeText(report).then(() => {
+                    document.getElementById('diagCopyBtn').textContent = '✅ Copiado!';
+                    setTimeout(() => { document.getElementById('diagCopyBtn').textContent = '📋 Copiar Tudo'; }, 2000);
+                });
+            });
         }
 
         function checkMissedHabits() {
