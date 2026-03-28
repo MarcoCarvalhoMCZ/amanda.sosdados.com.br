@@ -4245,11 +4245,10 @@ function doGet(e) {
         }
 
         // Cálculo centralizado: fonte única de verdade para o mês
-        // Denominador FIXO (mês inteiro) — não muda ao longo dos dias
-        // Numerador conta completados até hoje
+        // Denominador PROGRESSIVO (até hoje) — reflete desempenho real
+        // Ambos os indicadores (header e resumo) usam esta mesma função
         function calculateMonthlyStats() {
             const now = new Date();
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             const categories = {
                 habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
                 medication: { name: 'Medicamentos', color: '#3b82f6', possible: 0, completed: 0 },
@@ -4259,9 +4258,10 @@ function doGet(e) {
             let totalPossible = 0;
             let totalCompleted = 0;
 
-            // Denominador fixo: conta TODOS os dias do mês (1 até último dia)
-            for (let day = 1; day <= daysInMonth; day++) {
+            // Conta tarefas do dia 1 até hoje
+            for (let day = 1; day <= now.getDate(); day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
+                if (d > now) break;
                 const dayOfWeek = d.getDay();
                 const dateStr = d.toDateString();
 
@@ -4273,8 +4273,7 @@ function doGet(e) {
                     const cat = categories[h.category] || categories.habit;
                     cat.possible++;
                     totalPossible++;
-                    // Numerador: só conta completados até hoje
-                    if (d <= now && h.completed[dateStr]) {
+                    if (h.completed[dateStr]) {
                         cat.completed++;
                         totalCompleted++;
                     }
@@ -4363,13 +4362,13 @@ function doGet(e) {
             const dupIds = ids.filter((id, i) => ids.indexOf(id) !== i);
             if (dupIds.length) report += `⚠️ IDs DUPLICADOS: ${dupIds.join(', ')}\n\n`;
 
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
             let grandTotal = 0;
             data.habits.forEach(h => {
                 const created = getHabitCreationDate(h);
                 let possible = 0;
-                for (let day = 1; day <= daysInMonth; day++) {
+                for (let day = 1; day <= now.getDate(); day++) {
                     const d = new Date(now.getFullYear(), now.getMonth(), day);
+                    if (d > now) break;
                     if (!h.days.includes(d.getDay())) continue;
                     if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) continue;
                     possible++;
