@@ -4263,9 +4263,6 @@ function doGet(e) {
         function calculateMonthlyStats() {
             const now = new Date();
             const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            
-            // Só conta se pelo menos 25% do mês passou (mínimo ~7 dias)
-            const minimumDaysRequired = Math.ceil(daysInMonth * 0.25);
 
             const categories = {
                 habit: { name: 'Hábitos', color: 'var(--primary)', possible: 0, completed: 0 },
@@ -4275,43 +4272,34 @@ function doGet(e) {
             };
             let totalPossible = 0;
             let totalCompleted = 0;
-            let daysWithHabits = 0;
 
-            // Conta tarefas do dia 1 até hoje
-            for (let day = 1; day <= now.getDate(); day++) {
+            // Conta tarefas para TODOS os dias do mês (passados e futuros)
+            for (let day = 1; day <= daysInMonth; day++) {
                 const d = new Date(now.getFullYear(), now.getMonth(), day);
-                if (d > now) break;
                 const dayOfWeek = d.getDay();
                 const dateStr = d.toDateString();
-                
-                let dayHasHabits = false;
 
                 data.habits.forEach(h => {
                     const uniqueDays = new Set(h.days);
                     if (!uniqueDays.has(dayOfWeek)) return;
+                    
                     const created = getHabitCreationDate(h);
+                    // Ignora dias anteriores à criação do hábito
                     if (d < new Date(created.getFullYear(), created.getMonth(), created.getDate())) return;
                     
-                    dayHasHabits = true;
                     const cat = categories[h.category] || categories.habit;
                     cat.possible++;
                     totalPossible++;
-                    if (h.completed[dateStr]) {
+                    
+                    // Somente checa as tarefas completadas para dias que já chegaram
+                    if (d <= now && h.completed[dateStr]) {
                         cat.completed++;
                         totalCompleted++;
                     }
                 });
-                
-                if (dayHasHabits) daysWithHabits++;
             }
 
             let percent = totalPossible > 0 ? (totalCompleted / totalPossible) * 100 : 0;
-            
-            // Se não passou dias suficientes com hábitos, limita a porcentagem máxima
-            if (daysWithHabits < minimumDaysRequired) {
-                const maxAllowed = (daysWithHabits / minimumDaysRequired) * 100;
-                percent = Math.min(percent, maxAllowed);
-            }
 
             return { totalPossible, totalCompleted, percent, categories };
         }
